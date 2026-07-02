@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue' // 1. Importalo aquí
+import LoginView from '../views/LoginView.vue'
+import ProfileView from '@/views/ProfileView.vue';
+import SettingsView from '@/views/SettingsView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,10 +23,28 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
     {
-    path: '/crear-ticket',
-    name: 'crear-ticket',
-    component: () => import('../views/CrearTicketView.vue')
-    }
+        path: '/tickets',
+        name: 'tickets.index',
+        component: () => import('../views/TicketsListView.vue')
+      },
+      {
+        path: '/tickets/crear',
+        name: 'tickets.crear',
+        component: () => import('../views/CrearTicketView.vue')
+      },
+      {
+        path: '/perfil',
+        name: 'perfil',
+        component: ProfileView,
+        meta: { requiresAuth: true } // si usas autenticación en rutas
+      },
+      {
+        path: '/configuracion',
+        name: 'configuracion',
+        component: SettingsView,
+        meta: { requiresAuth: true }
+      }
+
   ],
 })
 
