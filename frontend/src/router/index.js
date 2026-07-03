@@ -31,6 +31,11 @@ const router = createRouter({
         path: '/tickets/crear',
         name: 'tickets.crear',
         component: () => import('../views/CrearTicketView.vue')
+      }, 
+            {
+        path: '/clientes',
+        name: 'clientes.index',
+        component: () => import('../views/ClientesListView.vue')
       },
       {
         path: '/perfil',

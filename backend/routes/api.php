@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\{
     UsuarioController, 
     TicketBitacoraController, 
     SolicitudCompraController,
+    ClienteController,
     AuthController // No olvides importar tu AuthController
 };
 
@@ -28,4 +29,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('usuarios', UsuarioController::class);
     Route::apiResource('bitacoras', TicketBitacoraController::class);
     Route::apiResource('solicitudes', SolicitudCompraController::class);
+    Route::apiResource('clientes', ClienteController::class);
 });
