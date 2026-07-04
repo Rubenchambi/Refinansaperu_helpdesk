@@ -18,6 +18,7 @@ public function up()
         // Agregamos ->nullable() para evitar el error
         $table->string('cargo')->nullable()->after('telefono'); 
         $table->string('cartera_asignada')->nullable();
+        $table->string('email')->nullable()->after('contacto');
     });
 }
 

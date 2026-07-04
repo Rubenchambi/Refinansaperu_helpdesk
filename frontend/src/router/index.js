@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import ProfileView from '@/views/ProfileView.vue';
 import SettingsView from '@/views/SettingsView.vue';
+//import ClientesFormView from '@/views/ClientesFormView.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -36,6 +37,11 @@ const router = createRouter({
         path: '/clientes',
         name: 'clientes.index',
         component: () => import('../views/ClientesListView.vue')
+      },
+      {
+        path: '/clientes/crear',
+        name: 'clientes.crear',
+        component: () => import('../views/ClienteFormView.vue')
       },
       {
         path: '/perfil',

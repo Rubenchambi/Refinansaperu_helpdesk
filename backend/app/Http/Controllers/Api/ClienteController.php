@@ -12,7 +12,7 @@ class ClienteController extends Controller
 public function index(Request $request)
     {
         return Cliente::where('estado', true)
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'asc')
             ->paginate(10); // 10 registros por página
     }
 
@@ -20,7 +20,7 @@ public function index(Request $request)
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'RazonSocial'      => 'nullable|string|max:255',
+            'razonSocial'      => 'nullable|string|max:255',
             'ruc'              => 'required|string|max:20',
             'contacto'         => 'required|string|max:255',
             'telefono'         => 'required|string|max:20',
@@ -29,6 +29,7 @@ public function index(Request $request)
             'ciudad'           => 'nullable|string',
             'cargo'            => 'required|string',
             'cartera_asignada' => 'nullable|string',
+            'email'            => 'nullable|email|max:255',
         ]);
 
         try {
@@ -52,7 +53,7 @@ public function index(Request $request)
         }
 
         $validated = $request->validate([
-            'RazonSocial'      => 'nullable|string',
+            'razonSocial'      => 'nullable|string',
             'ruc'              => 'sometimes|required|string',
             'contacto'         => 'sometimes|required|string',
             'telefono'         => 'sometimes|required|string',
@@ -61,6 +62,7 @@ public function index(Request $request)
             'ciudad'           => 'nullable|string',
             'cargo'            => 'sometimes|required|string',
             'cartera_asignada' => 'nullable|string',
+            'email'            => 'nullable|email',
         ]);
 
         $cliente->update($validated);
