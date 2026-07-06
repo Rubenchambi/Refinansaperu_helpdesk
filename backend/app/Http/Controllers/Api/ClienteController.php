@@ -11,9 +11,19 @@ class ClienteController extends Controller
     // 1. Listar clientes
 public function index(Request $request)
     {
-        return Cliente::where('estado', true)
-            ->orderBy('id', 'asc')
-            ->paginate(10); // 10 registros por página
+    $query = Cliente::where('estado', true);
+    if ($request->filled('contacto')) {
+        $contacto = trim($request->contacto);
+        $query->where('contacto', 'like', '%' . $contacto . '%');
+    }
+    if ($request->filled('ruc')) {
+        $query->where('ruc', 'like', '%' . $request->ruc . '%');
+    }
+    if ($request->filled('cargo')) {
+        $query->where('cargo', $request->cargo);
+    }
+
+    return $query->orderBy('id', 'asc')->paginate(5);
     }
 
     // 2. Crear nuevo cliente
@@ -41,6 +51,18 @@ public function index(Request $request)
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al registrar el asesor.'], 500);
         }
+    }
+
+    // 1.5. Obtener un cliente específico (¡Este faltaba!)
+    public function show($id)
+    {
+        $cliente = Cliente::find($id);
+
+        if (!$cliente) {
+            return response()->json(['message' => 'Asesor no encontrado.'], 404);
+        }
+
+        return response()->json($cliente);
     }
 
     // 3. Actualizar cliente
@@ -86,7 +108,7 @@ public function index(Request $request)
         $cliente->update(['estado' => false]);
 
         return response()->json([
-            'message' => 'Asesor desactivado correctamente.'
+            'message' => 'Asesor Eliminado correctamente.'
         ]);
     }
 }

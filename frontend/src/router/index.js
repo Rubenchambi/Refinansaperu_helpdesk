@@ -39,8 +39,8 @@ const router = createRouter({
         component: () => import('../views/ClientesListView.vue')
       },
       {
-        path: '/clientes/crear',
-        name: 'clientes.crear',
+        path: '/clientes/crear/:id?', // El '?' indica que el ID es opcional (para cuando es nuevo)
+        name: 'clientes.form',
         component: () => import('../views/ClienteFormView.vue')
       },
       {

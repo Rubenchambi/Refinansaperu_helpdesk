@@ -16,6 +16,8 @@ class Cliente extends Model
         'ciudad', 
         'cargo', 
         'cartera_asignada',
-        'email'
+        'email',
+        'estado'
+
 ];
 }

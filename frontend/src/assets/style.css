@@ -1,1 +1,8 @@
 @import "tailwindcss";
+
+@media print {
+  /* Oculta todo lo que no sea la tabla */
+  body * { visibility: hidden; }
+  #imprimir-tabla, #imprimir-tabla * { visibility: visible; }
+  #imprimir-tabla { position: absolute; left: 0; top: 0; width: 100%; }
+}
