@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import ProfileView from '@/views/ProfileView.vue';
 import SettingsView from '@/views/SettingsView.vue';
+
 //import ClientesFormView from '@/views/ClientesFormView.vue';
 
 const router = createRouter({
@@ -33,7 +34,7 @@ const router = createRouter({
         name: 'tickets.crear',
         component: () => import('../views/CrearTicketView.vue')
       }, 
-            {
+       {
         path: '/clientes',
         name: 'clientes.index',
         component: () => import('../views/ClientesListView.vue')
@@ -43,6 +44,14 @@ const router = createRouter({
         name: 'clientes.form',
         component: () => import('../views/ClienteFormView.vue')
       },
+
+      {
+        path: '/tipos-casos',
+        name: 'tipos.casos',
+        component: () => import('../views/TipoCasoView.vue'), // Lazy loading para mantenerlo optimizado
+        meta: { requiresAuth: true } // Manteniendo tu seguridad
+      },
+
       {
         path: '/perfil',
         name: 'perfil',

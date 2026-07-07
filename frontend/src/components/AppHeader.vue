@@ -45,7 +45,8 @@
           >
             <!-- Info del usuario -->
             <div class="px-4 py-3 border-b border-slate-100">
-              <p class="text-sm font-semibold text-slate-900">{{ userName }}</p>
+              <p class="text-sm font-semibold text-slate-900">Bienvenido {{ userName }}</p>
+              <p class="text-sm font-semibold text-slate-900">{{ userRol }}</p>
               <p class="text-xs text-slate-500 truncate">{{ authStore.user?.email || 'Sin email' }}</p>
             </div>
 
@@ -107,7 +108,7 @@ const dropdownRef = ref(null);
 
 // ===== COMPUTED PARA MOSTRAR DATOS DEL USUARIO =====
 const userName = computed(() => authStore.user?.nombre || 'Usuario');
-
+const userRol = computed(() => authStore.user?.rol?.nombre || 'Sin rol');
 const userInitials = computed(() => {
   const name = authStore.user?.nombre || 'US';
   return name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();

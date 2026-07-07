@@ -116,7 +116,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '@/services/api';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
 import * as XLSX from 'xlsx';
@@ -142,7 +142,7 @@ const irAEditar = (cliente) => {
 // 3. Función para traer clientes
 const fetchClientes = async (page = 1) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/api/clientes?page=${page}`, { 
+    const response = await api.get(`/clientes?page=${page}`, { 
        params: filters.value 
     });
     clientes.value = response.data.data;
@@ -178,7 +178,7 @@ const deleteCliente = async (id) => {
 
   if (result.isConfirmed) {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/clientes/${id}`);
+     await api.delete(`/clientes/${id}`);
       Swal.fire('¡Éxito!', 'Asesor eliminado correctamente.', 'success');
       fetchClientes(pagination.value.current_page);
     } catch (error) {

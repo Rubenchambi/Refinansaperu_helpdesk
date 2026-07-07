@@ -2,7 +2,7 @@
   <div class="p-8 bg-slate-50 min-h-screen">
     <div class="max-w-5xl mx-auto">
       
-      <div class="flex justify-between items-end mb-8">
+      <div class="flex justify-between items-end mb-6">
         <div>
           <h1 class="text-3xl font-bold text-slate-800 flex items-center gap-3">
             <span class="bg-blue-600 p-2 rounded-xl text-white">
@@ -17,44 +17,44 @@
         </button>
       </div>
 
-      <form @submit.prevent="guardarCliente" class="space-y-6">
+      <form @submit.prevent="guardarCliente" class="space-y-5">
         
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
           <h2 class="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <IdentificationIcon class="w-5 h-5 text-blue-600" /> Datos de Contacto
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="md:col-span-2">
               <label class="block text-sm font-medium text-slate-600 mb-1">Nombre Completo / Contacto *</label>
-              <input v-model="form.contacto" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+              <input v-model="form.contacto" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Correo Electrónico *</label>
-              <input v-model="form.email" type="email" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+              <input v-model="form.email" type="email" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Teléfono *</label>
-              <input v-model="form.telefono" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.telefono" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
           <h2 class="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <BuildingOfficeIcon class="w-5 h-5 text-blue-600" /> Información Corporativa
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Empresa</label>
-              <input v-model="form.razonSocial" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.razonSocial" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">DNI / RUC</label>
-              <input v-model="form.ruc" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.ruc" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Cargo *</label>
-              <select v-model="form.cargo" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+              <select v-model="form.cargo" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" required>
                 <option value="" disabled>Seleccione...</option>
                 <option value="Gestor Call">Gestor Call</option>
                 <option value="Gestor Campo">Gestor Campo</option>
@@ -67,26 +67,26 @@
           </div>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200">
           <h2 class="text-lg font-semibold text-slate-700 mb-4 flex items-center gap-2">
             <MapPinIcon class="w-5 h-5 text-blue-600" /> Ubicación y Gestión
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Distrito</label>
-              <input v-model="form.distrito" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.distrito" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Ciudad</label>
-              <input v-model="form.ciudad" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.ciudad" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
             <div>
               <label class="block text-sm font-medium text-slate-600 mb-1">Cartera Asignada</label>
-              <input v-model="form.cartera_asignada" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.cartera_asignada" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
             <div class="md:col-span-3">
               <label class="block text-sm font-medium text-slate-600 mb-1">Dirección Completa</label>
-              <input v-model="form.direccion" type="text" class="w-full p-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
+              <input v-model="form.direccion" type="text" class="w-full p-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition">
             </div>
           </div>
         </div>
@@ -101,9 +101,10 @@
     </div>
   </div>
 </template>
+
 <script setup>
 import { ref, onMounted } from 'vue';
-import axios from 'axios';
+import api from '@/services/api';
 import Swal from 'sweetalert2';
 import { useRoute, useRouter } from 'vue-router';
 import { UserIcon, ArrowLeftIcon, IdentificationIcon, MapPinIcon, CheckIcon } from '@heroicons/vue/24/outline';
@@ -120,7 +121,7 @@ onMounted(async () => {
   const id = route.params.id;
   if (id) {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/clientes/${id}`);
+      const response = await api.get(`/clientes/${id}`);
       form.value = response.data;
     } catch (error) {
       Swal.fire('Error', 'No se pudieron cargar los datos del cliente.', 'error');
@@ -136,11 +137,9 @@ const guardarCliente = async () => {
   try {
     const esEdicion = !!form.value.id;
     const url = esEdicion 
-      ? `http://127.0.0.1:8000/api/clientes/${form.value.id}` 
-      : 'http://127.0.0.1:8000/api/clientes';
-    
+    const endpoint = esEdicion ? `/clientes/${form.value.id}` : '/clientes';
     // Si es edición usamos PUT, si es nuevo usamos POST
-    await axios[esEdicion ? 'put' : 'post'](url, form.value);
+     await api[esEdicion ? 'put' : 'post'](endpoint, form.value);
 
     await Swal.fire({
       icon: 'success',

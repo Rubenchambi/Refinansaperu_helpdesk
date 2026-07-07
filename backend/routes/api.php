@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\{
     TicketBitacoraController, 
     SolicitudCompraController,
     ClienteController,
+    TipoCasoController,
     AuthController // No olvides importar tu AuthController
 };
 
@@ -30,4 +31,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('bitacoras', TicketBitacoraController::class);
     Route::apiResource('solicitudes', SolicitudCompraController::class);
     Route::apiResource('clientes', ClienteController::class);
+    Route::apiResource('tipos-casos', TipoCasoController::class);
 });

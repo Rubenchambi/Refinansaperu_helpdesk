@@ -3,6 +3,8 @@ import { ref } from 'vue';
 import { useAuthStore } from '@/stores/auth';
 import { useRouter } from 'vue-router';
 import Swal from 'sweetalert2';
+// Importamos tu instancia de api centralizada
+import api from '@/services/api'; 
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -21,13 +23,14 @@ const handleLogin = async () => {
   });
 
   try {
+    // El authStore usará la instancia 'api' centralizada
     const result = await authStore.login(email.value, password.value);
     Swal.close();
 
     if (result.success) {
       router.push('/');
     } else {
-      // Mensaje dinámico basado en lo que devuelve el backend
+      // Tu lógica original de mensaje dinámico se mantiene intacta
       Swal.fire({
         icon: 'error',
         title: result.message.includes('bloqueado') ? 'Cuenta Bloqueada' : 'Error de acceso',
