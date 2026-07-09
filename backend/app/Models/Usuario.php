@@ -18,4 +18,8 @@ class Usuario extends Authenticatable {
     public function rol() {
         return $this->belongsTo(Role::class, 'rolId');
     }
+
+    public function area() {
+    return $this->belongsTo(Area::class, 'area_id');
+}
 }

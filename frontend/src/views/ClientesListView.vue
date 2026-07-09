@@ -250,7 +250,7 @@ const exportarExcel = async () => {
   // Generar archivo
   const buffer = await workbook.xlsx.writeBuffer();
   const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  saveAs(blob, 'Reporte_Clientes_Profesional.xlsx');
+  saveAs(blob, 'Reporte_Clientes.xlsx');
 };
 
 // Corregido: Uso de autoTable importado

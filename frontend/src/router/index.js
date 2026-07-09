@@ -51,6 +51,12 @@ const router = createRouter({
         component: () => import('../views/TipoCasoView.vue'), // Lazy loading para mantenerlo optimizado
         meta: { requiresAuth: true } // Manteniendo tu seguridad
       },
+      {
+        path: '/areas',
+        name: 'areas.areas',
+        component: () => import('../views/AreasView.vue'), // Lazy loading para mantenerlo optimizado
+        meta: { requiresAuth: true } // Manteniendo tu seguridad
+      },
 
       {
         path: '/perfil',

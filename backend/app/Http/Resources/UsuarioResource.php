@@ -13,7 +13,7 @@ class UsuarioResource extends JsonResource{
             'id' => $this->id,
             'nombreCompleto' => $this->nombre . ' ' . $this->apellidos,
             'email' => $this->email,
-            'area' => $this->area,
+            'area' => $this->area ? $this->area->nombre : 'Sin área',
             'rol' => $this->rol->nombre,
         ];
     }
