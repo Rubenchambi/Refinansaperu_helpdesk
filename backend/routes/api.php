@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\{
     ClienteController,
     TipoCasoController,
     AreaController,
+    RolController,
     AuthController // No olvides importar tu AuthController
 };
 
@@ -34,4 +35,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('clientes', ClienteController::class);
     Route::apiResource('tipos-casos', TipoCasoController::class);
     Route::apiResource('areas',AreaController::class);
+    Route::apiResource('roles', RolController::class);
+    
 });

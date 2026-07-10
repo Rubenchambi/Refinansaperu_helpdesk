@@ -19,6 +19,10 @@ class AuthController extends Controller
 
         // 2. Buscamos usuario
         $usuario = Usuario::with('rol')->where('email', $request->email)->first();
+        // 2.1 revisar usuario si esta desactivado
+        if ($usuario && !$usuario->estado) {
+            return response()->json(['message' => 'Tu cuenta ha sido desactivada. Contacta al administrador.'], 403);
+        }
 
         // 3. Verificación de bloqueo
         if ($usuario && $usuario->bloqueado_hasta && now()->lessThan($usuario->bloqueado_hasta)) {

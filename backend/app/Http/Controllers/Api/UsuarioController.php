@@ -10,36 +10,96 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
-    // Listar solo usuarios activos
-    public function index() {
-        return UsuarioResource::collection(Usuario::where('estado', true)->get());
-    }
+    // Listar (con filtros y paginación)
+    public function index(Request $request)
+    {
+        $query = Usuario::where('estado', true)->with(['areas', 'role']);
 
-    // Crear nuevo usuario
-    public function store(Request $request) {
-        $data = $request->all();
-        // Aseguramos que la contraseña sea segura al guardar
-        if (isset($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
+        if ($request->filled('nombre')) {
+            $query->where('nombre', 'like', '%' . $request->nombre . '%');
         }
-        return new UsuarioResource(Usuario::create($data));
+        if ($request->filled('apellidos')) {
+            $query->where('apellidos', 'like', '%' . $request->apellidos . '%');
+        }
+        
+        return UsuarioResource::collection($query->orderBy('id', 'asc')->paginate(5));
     }
 
-    // Ver detalle
-    public function show($id) {
-        return new UsuarioResource(Usuario::findOrFail($id));
+    // Crear
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nombre'     => 'required|string|max:255',
+            'apellidos'  => 'required|string|max:255',
+            'dni'        => 'required|string|max:20|unique:usuarios,dni',
+            'email'      => 'required|email|unique:usuarios,email',
+            'password'   => 'required|string|min:6',
+            'rolId'      => 'required|exists:roles,id',
+            'area_ids'   => 'required|array',
+            'area_ids.*' => 'exists:areas,id',
+        ]);
+
+        // Separamos los datos del usuario de los IDs de áreas
+        $datosUsuario = $validated;
+        unset($datosUsuario['area_ids']);
+        $datosUsuario['password'] = Hash::make($validated['password']);
+        
+        $usuario = Usuario::create($datosUsuario);
+
+        // Guardamos la relación en la tabla pivote
+        $usuario->areas()->sync($validated['area_ids']);
+
+        return response()->json(['message' => 'Usuario registrado.', 'data' => new UsuarioResource($usuario)], 201);
     }
 
-    // Actualizar usuario
-    public function update(Request $request, $id) {
-        $usuario = Usuario::findOrFail($id);
-        $usuario->update($request->all());
+    // Ver detalle para editar
+    public function show($id)
+    {
+        $usuario = Usuario::with(['areas', 'role'])->findOrFail($id);
         return new UsuarioResource($usuario);
     }
 
+    // Actualizar
+   public function update(Request $request, $id)
+{
+    $usuario = Usuario::findOrFail($id);
+    $validated = $request->validate([
+        'nombre'     => 'sometimes|required|string',
+        'apellidos'  => 'sometimes|required|string',
+        'dni'        => 'sometimes|required|unique:usuarios,dni,' . $id,
+        'email'      => 'sometimes|required|email|unique:usuarios,email,' . $id,
+        'password'   => 'nullable|string|min:6',
+        'rolId'      => 'sometimes|required|exists:roles,id',
+        'area_ids'   => 'nullable|array', 
+        'area_ids.*' => 'exists:areas,id',
+    ]);
+
+    if ($request->filled('password')) {
+        $validated['password'] = Hash::make($request->password);
+    } else {
+        unset($validated['password']);
+    }
+
+    if ($request->has('area_ids')) {
+        $usuario->areas()->sync($request->area_ids);
+    }
+    
+    // 4. Limpiamos antes de actualizar el modelo principal
+    unset($validated['area_ids']);
+
+    // 5. Guardamos cambios
+    $usuario->update($validated);
+
+    return response()->json([
+        'message' => 'Usuario actualizado.', 
+        'data' => new UsuarioResource($usuario)
+    ]);
+}
+
     // Eliminación lógica
-    public function destroy($id) {
+    public function destroy($id)
+    {
         Usuario::findOrFail($id)->update(['estado' => false]);
-        return response()->json(['message' => 'Usuario desactivado correctamente'], 200);
+        return response()->json(['message' => 'Usuario eliminado.']);
     }
 }

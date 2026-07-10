@@ -2,24 +2,43 @@
 
 namespace App\Models;
 
-use Illuminate\Foundation\Auth\User as Authenticatable; 
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Usuario extends Authenticatable {
-
+class Usuario extends Authenticatable
+{
     use HasApiTokens, Notifiable;
-    protected $guarded = [];
 
-    public function tickets() {
-        return $this->hasMany(Ticket::class, 'usuarioReportanteId');
+    protected $fillable = [
+        'nombre', 
+        'apellidos', 
+        'dni', 
+        'email', 
+        'password', 
+        'rolId', 
+        'estado',
+        'intentos_fallidos',
+        'bloqueado_hasta'
+    ];
+
+    protected $hidden = [
+        'password', 
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'estado' => 'boolean',
+        'email_verified_at' => 'datetime',
+    ];
+
+    public function areas()
+    {
+      return $this->belongsToMany(Area::class, 'usuario_area', 'usuario_id', 'area_id');
     }
 
-    public function rol() {
+    public function role() 
+    {
         return $this->belongsTo(Role::class, 'rolId');
     }
-
-    public function area() {
-    return $this->belongsTo(Area::class, 'area_id');
-}
 }

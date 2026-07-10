@@ -95,7 +95,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue';
-import api from '@/services/api';
+import api from '../services/api';
 import Swal from 'sweetalert2';
 import { BuildingOffice2Icon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
 

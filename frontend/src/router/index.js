@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../views/LoginView.vue'
 import ProfileView from '@/views/ProfileView.vue';
 import SettingsView from '@/views/SettingsView.vue';
+import ConfiguracionView from '@/views/ConfiguracionView.vue';
 
 //import ClientesFormView from '@/views/ClientesFormView.vue';
 
@@ -54,10 +55,25 @@ const router = createRouter({
       {
         path: '/areas',
         name: 'areas.areas',
-        component: () => import('../views/AreasView.vue'), // Lazy loading para mantenerlo optimizado
+        component: () => import('../components/AreasComponent.vue'), // Lazy loading para mantenerlo optimizado
         meta: { requiresAuth: true } // Manteniendo tu seguridad
       },
-
+      {
+        path: '/usuarios',
+        name: 'usuarios.index',
+        component: () => import('../views/UsuarioListView.vue')
+      },
+      {
+        path: '/usuarios/crear/:id?', 
+        name: 'usuarios.form',
+        component: () => import('../views/UsuarioFormView.vue')
+      },
+      {
+        path: '/administracion',
+        name: 'administracion',
+        component: ConfiguracionView,
+        meta: { requiresAuth: true } // si usas autenticación en rutas
+      },
       {
         path: '/perfil',
         name: 'perfil',

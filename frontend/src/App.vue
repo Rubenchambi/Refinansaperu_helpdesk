@@ -51,9 +51,9 @@
           <span v-if="!sidebarCollapsed">Tipos de Caso</span>
         </router-link>
 
-        <router-link to="/areas" class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" :class="sidebarCollapsed ? 'justify-center px-3' : ''">
+        <router-link to="/administracion" class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" :class="sidebarCollapsed ? 'justify-center px-3' : ''">
           <Cog6ToothIcon class="w-5 h-5 shrink-0" />
-          <span v-if="!sidebarCollapsed">Areas</span>
+          <span v-if="!sidebarCollapsed">Administración</span>
         </router-link>
         
         <router-link to="/productos" class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" :class="sidebarCollapsed ? 'justify-center px-3' : ''">
