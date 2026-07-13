@@ -18,7 +18,7 @@ class AuthController extends Controller
         ]);
 
         // 2. Buscamos usuario
-        $usuario = Usuario::with('rol')->where('email', $request->email)->first();
+        $usuario = Usuario::with('role')->where('email', $request->email)->first();
         // 2.1 revisar usuario si esta desactivado
         if ($usuario && !$usuario->estado) {
             return response()->json(['message' => 'Tu cuenta ha sido desactivada. Contacta al administrador.'], 403);
@@ -71,9 +71,9 @@ class AuthController extends Controller
                 'id' => $usuario->id,
                 'nombre' => $usuario->nombre,
                 'email' => $usuario->email,
-                'rol' => $usuario->rol ? [
-                    'id' => $usuario->rol->id,
-                    'nombre' => $usuario->rol->nombre,
+                'rol' => $usuario->role ? [
+                    'id' => $usuario->role->id,
+                    'nombre' => $usuario->role->nombre,
                 ] : null,
             ]
         ]);

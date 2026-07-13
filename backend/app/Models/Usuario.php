@@ -37,6 +37,11 @@ class Usuario extends Authenticatable
       return $this->belongsToMany(Area::class, 'usuario_area', 'usuario_id', 'area_id');
     }
 
+    public function carteras()
+    {
+        return $this->belongsToMany(Cartera::class, 'usuario_cartera', 'usuario_id', 'cartera_id');
+    }
+
     public function role() 
     {
         return $this->belongsTo(Role::class, 'rolId');

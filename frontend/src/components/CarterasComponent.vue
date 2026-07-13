@@ -1,22 +1,21 @@
 <template>
   <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      
-      <div class="p-4 lg:col-span-1 rounded-2xl shadow-sm border border-slate-200 sticky top-8">
+      <div class="p-4 lg:col-span-1 rounded-2xl shadow-sm border border-slate-200 sticky top-8r">
         <h2 class="text-lg font-bold text-slate-700 mb-6 flex items-center gap-2">
           <span class="w-2 h-6 bg-blue-600 rounded-full"></span>
-          {{ form.id ? 'Editar Rol' : 'Nuevo Rol' }}
+          {{ form.id ? 'Editar Cartera' : 'Nueva Cartera' }}
         </h2>
         
-        <form @submit.prevent="guardarRol" class="space-y-4">
+        <form @submit.prevent="guardarCartera" class="space-y-4">
           <div>
-            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nombre del Rol *</label>
-            <input v-model="form.nombre" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ej: Administrador">
+            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nombre Cartera *</label>
+            <input v-model="form.nombre_cartera" required class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Ej: Pichincha">
           </div>
 
           <div>
             <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Descripción</label>
-            <input v-model="form.descripcion" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Breve descripción">
+            <input v-model="form.descripcion" class="w-full p-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Descripción...">
           </div>
 
           <label class="flex items-center gap-3 cursor-pointer">
@@ -45,21 +44,21 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-50">
-            <tr v-for="rol in roles" :key="rol.id" class="hover:bg-slate-50 transition-colors">
-              <td class="p-4 font-semibold text-center text-slate-700">{{ rol.id }}</td>
-              <td class="p-4 font-semibold text-slate-700">{{ rol.nombre }}</td>
-              <td class="p-4 text-slate-600">{{ rol.descripcion }}</td>
+            <tr v-for="cartera in carteras" :key="cartera.id" class="hover:bg-slate-50 transition-colors">
+              <td class="p-4 font-semibold text-center text-slate-700">{{ cartera.id }}</td>
+              <td class="p-4 font-semibold text-slate-700">{{ cartera.nombre_cartera }}</td>
+              <td class="p-4 text-slate-600">{{ cartera.descripcion }}</td>
               <td class="p-4">
-                <span :class="rol.estado ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase">
-                  {{ rol.estado ? 'Activo' : 'Inactivo' }}
+                <span :class="cartera.estado ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'" class="px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                  {{ cartera.estado ? 'Activo' : 'Inactivo' }}
                 </span>
               </td>
               <td class="p-4 text-right space-x-2">
-                <button @click="editar(rol)" class="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm">
-                  <PencilIcon class="w-5 h-5" />
+                <button @click="editar(cartera)" class="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
-                <button @click="eliminar(rol.id)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
-                  <TrashIcon class="w-5 h-5" />
+                <button @click="eliminar(cartera.id)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </td>
             </tr>
@@ -80,15 +79,15 @@
 import { ref, onMounted } from 'vue';
 import api from '../services/api';
 import Swal from 'sweetalert2';
-import { UserGroupIcon, PencilIcon, TrashIcon } from '@heroicons/vue/24/outline';
-const roles = ref([]);
-const pagination = ref({});
-const form = ref({ id: null, nombre: '', descripcion: '', estado: true });
 
-const fetchRoles = async (page = 1) => {
+const carteras = ref([]);
+const pagination = ref({});
+const form = ref({ id: null, nombre_cartera: '', descripcion: '', estado: true });
+
+const fetchCarteras = async (page = 1) => {
   try {
-    const { data } = await api.get(`/roles?page=${page}`);
-    roles.value = data.data; 
+    const { data } = await api.get(`/carteras?page=${page}`);
+    carteras.value = data.data;
     pagination.value = {
       current_page: data.current_page,
       last_page: data.last_page,
@@ -96,34 +95,33 @@ const fetchRoles = async (page = 1) => {
       next_page_url: data.next_page_url
     };
   } catch (error) {
-    console.error(error);
+    Swal.fire('Error', 'No se pudieron cargar las carteras', 'error');
   }
 };
 
-const changePage = (page) => fetchRoles(page);
+const changePage = (page) => fetchCarteras(page);
 
-const guardarRol = async () => {
+const guardarCartera = async () => {
   try {
-    const esEdicion = !!form.value.id;
-    esEdicion ? await api.put(`/roles/${form.value.id}`, form.value) : await api.post('/roles', form.value);
+    form.value.id ? await api.put(`/carteras/${form.value.id}`, form.value) : await api.post('/carteras', form.value);
     Swal.fire('¡Éxito!', 'Guardado correctamente', 'success');
     resetForm();
-    fetchRoles();
+    fetchCarteras();
   } catch (error) {
-    Swal.fire('Error', 'Verifica los campos', 'error');
+    Swal.fire('Error', 'Verifica el nombre de la cartera', 'error');
   }
 };
 
-const editar = (rol) => { form.value = { ...rol }; };
-const resetForm = () => { form.value = { id: null, nombre: '', descripcion: '', estado: true }; };
+const editar = (cartera) => { form.value = { ...cartera }; };
+const resetForm = () => { form.value = { id: null, nombre_cartera: '', descripcion: '', estado: true }; };
 
 const eliminar = async (id) => {
-  const { isConfirmed } = await Swal.fire({ title: '¿Desactivar Rol?', icon: 'warning', showCancelButton: true });
+  const { isConfirmed } = await Swal.fire({ title: '¿Desactivar cartera?', icon: 'warning', showCancelButton: true });
   if (isConfirmed) {
-    await api.delete(`/roles/${id}`);
-    fetchRoles();
+    await api.delete(`/carteras/${id}`);
+    fetchCarteras();
   }
 };
 
-onMounted(fetchRoles);
+onMounted(fetchCarteras);
 </script>

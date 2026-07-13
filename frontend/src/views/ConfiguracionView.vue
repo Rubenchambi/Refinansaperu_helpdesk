@@ -4,21 +4,34 @@
     
     <div class="flex gap-4 mb-6 border-b border-slate-200">
       <button @click="activeTab = 'roles'" 
-              :class="activeTab === 'roles' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500'"
-              class="px-4 py-2 font-semibold">Roles</button>
+              :class="activeTab === 'roles' ? 'bg-blue-600 text-white' : 'text-slate-500'"
+              class="px-4 py-2 font-semibold rounded-lg transition-all">Roles</button>
+      
       <button @click="activeTab = 'areas'" 
-              :class="activeTab === 'areas' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-slate-500'"
-              class="px-4 py-2 font-semibold">Áreas</button>
+              :class="activeTab === 'areas' ? 'bg-blue-600 text-white' : 'text-slate-500'"
+              class="px-4 py-2 font-semibold rounded-lg transition-all">Areas</button>
+      
+      <button @click="activeTab = 'carteras'" 
+              :class="activeTab === 'carteras' ? 'bg-blue-600 text-white' : 'text-slate-500'"
+              class="px-4 py-2 font-semibold rounded-lg transition-all">Carteras</button>
     </div>
 
-    <component :is="activeTab === 'roles' ? RolesComponent : AreasComponent" />
+    <component :is="tabs[activeTab]" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import RolesComponent from '@/components/RolComponent.vue';
 import AreasComponent from '@/components/AreasComponent.vue';
+import CarterasComponent from '@/components/CarterasComponent.vue';
 
 const activeTab = ref('roles');
+
+// Objeto de mapeo: clave = string del botón, valor = componente importado
+const tabs = {
+  roles: RolesComponent,
+  areas: AreasComponent,
+  carteras: CarterasComponent
+};
 </script>

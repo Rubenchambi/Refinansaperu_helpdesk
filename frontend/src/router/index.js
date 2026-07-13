@@ -59,6 +59,12 @@ const router = createRouter({
         meta: { requiresAuth: true } // Manteniendo tu seguridad
       },
       {
+        path: '/carteras',
+        name: 'carteras.carteras',
+        component: () => import('../components/CarterasComponent.vue'), // Lazy loading para mantenerlo optimizado
+        meta: { requiresAuth: true } // Manteniendo tu seguridad
+      },
+      {
         path: '/usuarios',
         name: 'usuarios.index',
         component: () => import('../views/UsuarioListView.vue')

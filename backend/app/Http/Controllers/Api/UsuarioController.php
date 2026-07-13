@@ -48,6 +48,7 @@ class UsuarioController extends Controller
 
         // Guardamos la relación en la tabla pivote
         $usuario->areas()->sync($validated['area_ids']);
+        $usuario->carteras()->sync($request->cartera_ids);
 
         return response()->json(['message' => 'Usuario registrado.', 'data' => new UsuarioResource($usuario)], 201);
     }
@@ -55,7 +56,7 @@ class UsuarioController extends Controller
     // Ver detalle para editar
     public function show($id)
     {
-        $usuario = Usuario::with(['areas', 'role'])->findOrFail($id);
+        $usuario = Usuario::with(['areas', 'role', 'carteras'])->findOrFail($id);
         return new UsuarioResource($usuario);
     }
 
@@ -84,9 +85,12 @@ class UsuarioController extends Controller
         $usuario->areas()->sync($request->area_ids);
     }
     
+    if ($request->has('cartera_ids')) {
+            $usuario->carteras()->sync($request->cartera_ids);
+    }
     // 4. Limpiamos antes de actualizar el modelo principal
     unset($validated['area_ids']);
-
+    unset($validated['cartera_ids']);
     // 5. Guardamos cambios
     $usuario->update($validated);
 

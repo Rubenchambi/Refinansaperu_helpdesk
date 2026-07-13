@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\{Role, Usuario, Producto, Activo, Cliente, TipoCaso, Ticket, TicketBitacora, Area};
+use App\Models\{Role, Usuario, Producto, Activo, Cliente, TipoCaso, Ticket, TicketBitacora, Area,Cartera};
 use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
@@ -14,6 +14,15 @@ class DatabaseSeeder extends Seeder
         $areas = ['Derrama', 'Pichincha', 'Judicial', 'Confianza', 'Hipotecario', 'Efectiva', 'Sistemas'];
         foreach ($areas as $nombre) {
             Area::updateOrCreate(['nombre' => $nombre], ['estado' => true]);
+        }
+        // 1.2. NUEVO: Carteras (Agregamos esto antes de Usuarios)
+        $carteras = [
+            ['nombre_cartera' => 'Pichincha', 'descripcion' => 'Cartera Banco Pichincha', 'estado' => true],
+            ['nombre_cartera' => 'Alfin', 'descripcion' => 'Cartera Banco Alfin', 'estado' => true],
+            ['nombre_cartera' => 'Efectiva', 'descripcion' => 'Cartera Financiera Efectiva', 'estado' => true],
+        ];
+        foreach ($carteras as $c) {
+            Cartera::updateOrCreate(['nombre_cartera' => $c['nombre_cartera']], $c);
         }
 
         // 2. Roles
