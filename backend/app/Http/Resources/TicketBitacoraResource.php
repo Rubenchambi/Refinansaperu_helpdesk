@@ -14,7 +14,11 @@ class TicketBitacoraResource extends JsonResource
             'comentario' => $this->comentario,
             'estado_anterior' => $this->estadoAnterior,
             'estado_nuevo' => $this->estadoNuevo,
-            'fecha_registro' => $this->created_at->diffForHumans(), // Ej: "hace 5 minutos"
+            // Traemos el nombre del usuario de la relación
+            'usuario_nombre' => $this->usuario ? $this->usuario->nombre : 'Sistema',
+            // Fecha legible y precisa
+            'fecha' => $this->created_at->format('d/m/Y H:i'),
+            'fecha_relativa' => $this->created_at->diffForHumans(),
         ];
     }
 }

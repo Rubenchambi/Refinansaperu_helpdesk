@@ -106,4 +106,8 @@ class UsuarioController extends Controller
         Usuario::findOrFail($id)->update(['estado' => false]);
         return response()->json(['message' => 'Usuario eliminado.']);
     }
+
+    public function getTecnicos() {
+    return response()->json(Usuario::where('rolId', 2)->get());
+}
 }

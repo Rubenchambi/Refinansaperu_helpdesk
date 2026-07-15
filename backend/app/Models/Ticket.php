@@ -14,10 +14,19 @@ class Ticket extends Model
     ];
 
     public function bitacoras() {
-        return $this->hasMany(TicketBitacora::class, 'ticketId');
+        return $this->hasMany(TicketBitacora::class, 'ticketId','id');
     }
 
     public function reportante() {
         return $this->belongsTo(Usuario::class, 'usuarioReportanteId');
     }
+
+    public function tecnico() {
+        return $this->belongsTo(Usuario::class, 'tecnicoAsignadoId');
+    }
+
+    public function activo() {
+        return $this->belongsTo(Activo::class, 'activoId');
+    }
+
 }

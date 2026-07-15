@@ -168,8 +168,7 @@ onMounted(async () => {
 const guardarUsuario = async () => {
     try {
         form.value.id ? await api.put(`/usuarios/${form.value.id}`, form.value) : await api.post('/usuarios', form.value);
-        console.log('los datos guardados son:',form);
-        
+             
         Swal.fire('¡Éxito!', 'Guardado correctamente', 'success');
         router.push('/usuarios');
     } catch (error) {
