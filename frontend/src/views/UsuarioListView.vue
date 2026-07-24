@@ -32,7 +32,7 @@
 
     <div class="bg-white shadow-sm border border-slate-200 rounded-lg overflow-hidden">
       <table class="w-full text-left">
-        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+        <thead class="bg-blue-500 border-b border-slate-200 text-white uppercase text-xs font-bold">
           <tr>
             <th class="p-4">Nro°</th>
             <th class="p-4">DNI</th>
@@ -78,10 +78,10 @@
             </td>
             <td class="p-4 text-center">
               <div class="flex justify-center gap-2">
-                <button @click="irAEditar(user)" class="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm">
-                    <PencilIcon class="w-5 h-5"/>
+                <button @click="irAEditar(user)" class="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm" title="Editar">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                 </button>
-                <button @click="deleteUsuario(user.id)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm">
+                <button @click="deleteUsuario(user.id)" class="p-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-500 hover:text-white transition-all shadow-sm">
                     <TrashIcon class="w-5 h-5"/>
                 </button>
               </div>
@@ -91,10 +91,10 @@
       </table>
 
       <div class="px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-slate-50">
-        <div class="text-sm text-slate-600">Mostrando página <b>{{ pagination.current_page }}</b></div>
+        <div class="text-sm text-slate-600">Mostrando página <b>{{ pagination.current_page }}</b> de <b>{{ pagination.last_page }}</b></div>
         <nav class="flex items-center gap-1">
-          <button :disabled="!pagination.prev_page_url" @click="fetchUsuarios(pagination.current_page - 1)" class="px-3 py-1.5 border border-slate-300 rounded-md bg-white hover:bg-slate-100 disabled:opacity-50 transition-all">Anterior</button>
-          <button :disabled="!pagination.next_page_url" @click="fetchUsuarios(pagination.current_page + 1)" class="px-3 py-1.5 border border-slate-300 rounded-md bg-white hover:bg-slate-100 disabled:opacity-50 transition-all">Siguiente</button>
+          <button :disabled="!pagination.prev_page_url" @click="fetchUsuarios(pagination.current_page - 1)" class="px-3 py-1.5 border border-slate-300 rounded-md bg-blue-500 text-white hover:bg-slate-100 disabled:opacity-50 transition-all">Anterior</button>
+          <button :disabled="!pagination.next_page_url" @click="fetchUsuarios(pagination.current_page + 1)" class="px-3 py-1.5 border border-slate-300 rounded-md bg-blue-500 text-white hover:bg-slate-100 disabled:opacity-50 transition-all">Siguiente</button>
         </nav>
       </div>
     </div>
@@ -116,8 +116,10 @@ import {
 
 const router = useRouter();
 const usuarios = ref([]);
+
 const filters = ref({ nombre: '', apellidos: '', dni: '' });
-const pagination = ref({ current_page: 1, prev_page_url: null, next_page_url: null });
+const pagination = ref({ 
+     current_page: 1,last_page: 1, prev_page_url: null, next_page_url: null });
 
 const getCarteraColor = (index) => {
   const colores = [
@@ -131,17 +133,27 @@ const getCarteraColor = (index) => {
 };
 const fetchUsuarios = async (page = 1) => {
   try {
-    const res = await api.get(`/usuarios?page=${page}`, { params: filters.value });
-    usuarios.value = res.data.data;
+    const res = await api.get(`/usuarios?page=${page}`, {
+       params: filters.value
+       });
+
+    const datos = res.data.data || res.data;
+    
+    usuarios.value = datos;
+
     pagination.value = {
-        current_page: res.data.current_page,
-        prev_page_url: res.data.prev_page_url,
-        next_page_url: res.data.next_page_url
+      current_page: res.data.meta?.current_page || 1,
+      last_page: res.data.meta?.last_page || 1,
+      prev_page_url: res.data.links?.prev || null,
+      next_page_url: res.data.links?.next || null
     };
-  } catch {
+  } catch(error) {
+    console.error(error);
     Swal.fire('Error', 'No se pudieron cargar los datos', 'error');
+    
   }
 };
+
 
 const irAEditar = (user) => router.push({ name: 'usuarios.form', params: { id: user.id } });
 

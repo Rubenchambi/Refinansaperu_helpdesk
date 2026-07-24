@@ -26,7 +26,6 @@ return new class extends Migration
             $table->timestamp('asignado_at')->nullable();
             $table->timestamp('finalizado_at')->nullable();
             $table->boolean('estado')->default(true); // Para eliminación lógica
-            
             $table->timestamps();
         });
     }

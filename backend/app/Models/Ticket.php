@@ -10,7 +10,7 @@ class Ticket extends Model
         'codigo_ticket', 'usuarioReportanteId', 'tecnicoAsignadoId', 
         'activoId', 'tipoCasoId', 'asunto', 'descripcion', 
         'prioridad', 'estadoTicket', 'tipo_cola', 'asignado_at', 
-        'finalizado_at', 'estado'
+        'finalizado_at', 'estado','imagen'
     ];
 
     public function bitacoras() {
@@ -28,5 +28,10 @@ class Ticket extends Model
     public function activo() {
         return $this->belongsTo(Activo::class, 'activoId');
     }
+    public function tipoCaso()
+    {
+    return $this->belongsTo(TipoCaso::class, 'tipoCasoId');
+    }
 
+    public function archivos() { return $this->hasMany(TicketArchivo::class); }
 }

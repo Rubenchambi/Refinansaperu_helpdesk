@@ -40,7 +40,11 @@ const router = createRouter({
         name: 'TicketDetail',
         component: () => import('../views/TicketDetailView.vue') // O donde lo hayas guardado
       },
-      
+      {
+        path: '/tickets/crear/:id?', 
+        name: 'tickets.form',
+        component: () => import('../views/CrearTicketView.vue')
+      },
       {
         path: '/clientes',
         name: 'clientes.index',

@@ -29,17 +29,18 @@
       </div>
 
       <div class="lg:col-span-2">
-        <table class="w-full text-left">
-          <thead class="bg-slate-50 border-b border-slate-100">
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-blue-500 text-sm font-medium text-white">
             <tr>
-              <th class="p-5 text-xs font-bold text-slate-500 uppercase">Nro.</th>
-              <th class="p-5 text-xs font-bold text-slate-500 uppercase">Nombre</th>
-              <th class="p-5 text-xs font-bold text-slate-500 uppercase">Estado</th>
-              <th class="p-5 text-xs font-bold text-slate-500 uppercase text-right">Acciones</th>
+              <th class="p-4 text-xs font-bold text-white-400 uppercase ">Nro.</th>
+              <th class="p-4 text-xs font-bold text-white-400 uppercase">Nombre</th>
+              <th class="p-4 text-xs font-bold text-white-400 uppercase">Estado</th>
+              <th class="p-4 text-xs font-bold text-white-400 uppercase text-right ">Acciones</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-slate-50">
-            <tr v-for="area in areas" :key="area.id" class="hover:bg-slate-50 transition-colors">
+          <tbody class="divide-y divide-slate-100 text-s">
+            <tr v-for="area in areas" :key="area.id" class="hover:bg-white hover:shadow-md hover:scale-[1.005] transition-all duration-200 ease-in-out cursor-pointer">
               <td class="p-4 font-semibold text-center text-slate-700">{{ area.id }}</td>
               <td class="p-4 font-semibold text-slate-700">{{ area.nombre }}</td>
               <td class="p-4">
@@ -64,6 +65,7 @@
           <span class="text-sm text-slate-500 font-medium">Pág {{ pagination.current_page }} de {{ pagination.last_page }}</span>
           <button :disabled="!pagination.next_page_url" @click="changePage(pagination.current_page + 1)" class="px-4 py-2 bg-blue-500 rounded-lg text-sm text-white disabled:opacity-50 hover:bg-blue-600">Siguiente</button>
         </div>
+      </div>
       </div>
     </div>
   </div>

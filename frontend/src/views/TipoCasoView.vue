@@ -67,14 +67,14 @@
       <!-- Tabla -->
       <div class="lg:col-span-2">
         <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 border-b border-slate-100">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-blue-500 text-sm font-medium text-white">
               <tr>
-                <th class="p-5 text-xs font-bold text-slate-500 uppercase">Nombre</th>
-                <th class="p-5 text-xs font-bold text-slate-500 uppercase">Prioridad</th>
-                <th class="p-5 text-xs font-bold text-slate-500 uppercase">Descripcion</th>
-                <th class="p-5 text-xs font-bold text-slate-500 uppercase">Estado</th>
-                <th class="p-5 text-xs font-bold text-slate-500 uppercase text-right">Acciones</th>
+                <th class="p-5 text-xs font-bold text-white-500 uppercase">Nombre</th>
+                <th class="p-5 text-xs font-bold text-white-500 uppercase">Prioridad</th>
+                <th class="p-5 text-xs font-bold text-white-500 uppercase">Descripcion</th>
+                <th class="p-5 text-xs font-bold text-white-500 uppercase">Estado</th>
+                <th class="p-5 text-xs font-bold text-white-500 uppercase text-right">Acciones</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">

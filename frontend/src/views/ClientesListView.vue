@@ -52,7 +52,7 @@
     <div class="bg-white shadow-sm border border-slate-200 rounded-lg overflow-hidden">
       <div id="imprimir-tabla">
       <table class="w-full text-left">
-        <thead class="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase text-xs font-bold">
+        <thead class="bg-blue-500 border-b border-slate-200 text-white uppercase text-xs font-bold">
           <tr>
             <th class="p-4">Nro°</th>
             <th class="p-4">Ruc - Dni</th>
@@ -145,8 +145,10 @@ const fetchClientes = async (page = 1) => {
     const response = await api.get(`/clientes?page=${page}`, { 
        params: filters.value 
     });
+
     clientes.value = response.data.data;
-    pagination.value = {
+    pagination.value = /*pagination.value = response.data;*/{
+      
       current_page: response.data.current_page,
       last_page: response.data.last_page,
       prev_page_url: response.data.prev_page_url,

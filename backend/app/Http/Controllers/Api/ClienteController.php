@@ -14,7 +14,7 @@ public function index(Request $request)
     $query = Cliente::where('estado', true);
     if ($request->filled('contacto')) {
         $contacto = trim($request->contacto);
-        $query->where('contacto', 'like', '%' . $contacto . '%');
+        $query->where('contacto', 'ilike', '%' . $contacto . '%');
     }
     if ($request->filled('ruc')) {
         $query->where('ruc', 'like', '%' . $request->ruc . '%');

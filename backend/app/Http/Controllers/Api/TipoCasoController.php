@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\TipoCaso; // Asegúrate de tener tu modelo TipoCaso
+use App\Http\Resources\TipoCasoResource;
 use Illuminate\Http\Request;
 
 class TipoCasoController extends Controller
@@ -15,6 +16,9 @@ class TipoCasoController extends Controller
 
         if ($request->filled('nombre')) {
             $query->where('nombre', 'like', '%' . trim($request->nombre) . '%');
+        }
+        if ($request->has('all')) {
+            return TipoCasoResource::collection($query->orderBy('id', 'asc')->get());
         }
 
         // Ordenamos por prioridad o nombre para mejor vista en el frontend

@@ -16,10 +16,14 @@ class UsuarioController extends Controller
         $query = Usuario::where('estado', true)->with(['areas', 'role']);
 
         if ($request->filled('nombre')) {
-            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+            $query->where('nombre', 'ilike', '%' . $request->nombre . '%');
         }
         if ($request->filled('apellidos')) {
-            $query->where('apellidos', 'like', '%' . $request->apellidos . '%');
+            $query->where('apellidos', 'ilike', '%' . $request->apellidos . '%');
+        }
+        
+        if ($request->has('all')) {
+            return UsuarioResource::collection($query->orderBy('id', 'asc')->get());
         }
         
         return UsuarioResource::collection($query->orderBy('id', 'asc')->paginate(5));
