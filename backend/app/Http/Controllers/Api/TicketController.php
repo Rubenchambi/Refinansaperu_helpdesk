@@ -15,11 +15,42 @@ use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
     {
+        // 1. Obtenemos el usuario autenticado
+        $user = $request->user();
+
         $query = Ticket::with(['tecnico'])
                      ->where('estado', true);
 
+        // ==========================================
+        // 2. FILTRADO SEGÚN ROL DEL USUARIO LOGUEADO
+        // ==========================================
+        $rolId = $user->rolId ?? null;
+
+        if ($rolId === 5) {
+            // SUPERVISOR (ID: 5): Ve los tickets cuyos usuarios reportantes pertenecen a sus carteras asignadas
+            $carterasIds = $user->carteras()->pluck('carteras.id'); 
+            
+            $query->whereHas('reportante', function($q) use ($carterasIds) {
+                $q->whereHas('carteras', function($subQ) use ($carterasIds) {
+                    $subQ->whereIn('carteras.id', $carterasIds);
+                });
+            });
+
+        } elseif ($rolId === 2) {
+            // TÉCNICO (ID: 2): Solo ve los tickets asignados a él
+            $query->where('tecnicoAsignadoId', $user->id); 
+
+        } elseif ($rolId === 3 || $rolId === 4) {
+            // ASESORES (Call ID: 3, Campo ID: 4): Solo ven los tickets que reportaron
+            $query->where('usuarioReportanteId', $user->id); 
+        }
+        // Si es Admin ($rolId === 1), ve todo sin restricciones.
+
+        // ==========================================
+        // 3. BÚSQUEDA (Se mantiene idéntica)
+        // ==========================================
         if ($request->filled('busqueda')) {
             $search = trim($request->busqueda);
             $searchLower = strtolower($search);
@@ -56,6 +87,9 @@ class TicketController extends Controller
             });
         }
 
+        // ==========================================
+        // 4. RETORNO CON ORDENACIÓN Y PAGINACIÓN
+        // ==========================================
         return TicketResource::collection($query->orderByRaw("CASE 
                 WHEN tipo_cola = 'soporte' THEN 1 
                 WHEN tipo_cola = 'general' THEN 2 
@@ -63,7 +97,6 @@ class TicketController extends Controller
                 END ASC")
             ->paginate(10));
     }
-
     public function store(Request $request)
     {
         $validated = $request->validate([

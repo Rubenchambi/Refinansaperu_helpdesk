@@ -153,7 +153,7 @@
 </div>
 
 
-
+          <!-- inicio de modulo gestion caso-->
           <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <h2 class="font-semibold text-slate-700 mb-6 flex items-center gap-2">
               <span class="w-1 h-5 bg-blue-600 rounded"></span> Historial de Seguimiento
@@ -185,66 +185,92 @@
             </ul>
           </div>
         </div>
+<!-- inicio de modulo gestion caso-->
+         <div class="space-y-6">
+           <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-6">
+             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Gestión del Caso</h3>
+             
+             <div class="space-y-4 mb-6">
+               <div><label class="text-xs text-slate-500">Prioridad</label>
+                 <div class="flex items-center gap-2 mt-1"><div class="w-3 h-3 rounded-full" :class="prioridadColor"></div> {{ ticket.prioridad }}</div>
+               </div>
+               <div><label class="text-xs text-slate-500">Estado</label>
+                 <div class="mt-1 font-semibold text-blue-700">{{ ticket.estadoTicket }}</div>
+               </div>
+             </div>
 
-        <div class="space-y-6">
-          <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-6">
-            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Gestión del Caso</h3>
-            
-            <div class="space-y-4 mb-6">
-              <div><label class="text-xs text-slate-500">Prioridad</label>
-                <div class="flex items-center gap-2 mt-1"><div class="w-3 h-3 rounded-full" :class="prioridadColor"></div> {{ ticket.prioridad }}</div>
-              </div>
-              <div><label class="text-xs text-slate-500">Estado</label>
-                <div class="mt-1 font-semibold text-blue-700">{{ ticket.estadoTicket }}</div>
-              </div>
-            </div>
+             <!-- CONTROLES DE ESTADO Y ASIGNACIÓN SEGÚN ROL -->
+             <div class="space-y-4 pt-4 border-t border-slate-100">
+               
+               <!-- 1. SELECTOR DE ESTADO (Visible para todos, pero con opciones limitadas por rol) -->
+               <div>
+                 <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
+                 <select v-model="ticket.estadoTicket" @change="cambiarEstado" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white">
+                   
+                   <!-- ADMIN (ID: 1): Todas las opciones -->
+                   <template v-if="usuarioAutenticado?.rol?.id === 1">
+                     <option value="Pendiente">Pendiente</option>
+                     <option value="En Proceso">En Proceso</option>
+                     <option value="Resuelto">Resuelto</option>
+                     <option value="Finalizado">Finalizado</option>
+                   </template>
 
-            <div v-if="usuarioAutenticado?.rol?.id === 1" class="space-y-4 pt-4 border-t border-slate-100">
-              <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
-                <select v-model="ticket.estadoTicket" @change="cambiarEstado" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm">
-                  <option value="Pendiente">Pendiente</option>
-                  <option value="En Proceso">En Proceso</option>
-                  <option value="Resuelto">Resuelto</option>
-                  <option value="Finalizado">Finalizado</option>
-                </select>
-              </div>
+                   <!-- SUPERVISOR (ID: 5): En Proceso o Resuelto -->
+                   <template v-else-if="usuarioAutenticado?.rol?.id === 5">
+                     <option value="En Proceso">En Proceso</option>
+                     <option value="Resuelto">Resuelto</option>
+                   </template>
 
-              <div>
-                <label class="text-xs font-bold text-slate-400 uppercase">Técnico Asignado</label>
-                <select v-model="ticket.tecnicoAsignadoId" @change="asignarTecnico" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm">
-                  <option :value="null">Asignar un Técnico</option>
-                  <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">{{ tec.nombre }}</option>
-                </select>
-              </div>
-            </div>
+                   <!-- TÉCNICO (ID: 2): Solo Finalizado -->
+                   <template v-else-if="usuarioAutenticado?.rol?.id === 2">
+                     <option value="Finalizado">Finalizado</option>
+                   </template>
 
-            <button v-if="usuarioPuedeComentar" @click="agregarNota" class="w-full mt-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
-              Añadir Nota
-            </button>
-            <br>
-            <br>
-              <div class="bg-white p-4 rounded-xl border text-center border-slate-200 shadow-sm">
-                <p class="text-slate-400 uppercase text-xs font-semibold">
-                  {{ ticket.estadoTicket === 'Finalizado' ? 'Estado' : (ticket.tecnicoAsignadoId ? 'Tiempo en Gestión' : 'Tiempo de Espera') }}
-                </p>
-                  
-                <div :class="['p-2 flex justify-center items-center gap-1 font-mono font-bold', tiempoTranscurrido.color]">
-                  <!-- Solo mostramos el ícono si no está finalizado -->
-                  <svg v-if="ticket.estadoTicket !== 'Finalizado'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                  </svg>
-                  
-                  <span>{{ tiempoTranscurrido.texto }}</span>
-                </div>
-              </div>
-          </div>
+                   <!-- USUARIO NORMAL (Asesor Campo ID: 4, Asesor Call ID: 3, u otros): Solo Resuelto / Volver a colocar resuelto -->
+                   <template v-else>
+                     <option value="Resuelto">Resuelto</option>
+                     <!-- Si ya está resuelto y necesita la opción de alternar/volver a colocar según la regla -->
+                     <option v-if="ticket.estadoTicket === 'Resuelto'" value="Pendiente">Pendiente (Volver a abrir)</option>
+                   </template>
 
+                 </select>
+               </div>
 
+               <!-- 2. SELECTOR DE TÉCNICO ASIGNADO (Solo Admin ID: 1 y Supervisor ID: 5) -->
+               <div v-if="usuarioAutenticado?.rol?.id === 1 || usuarioAutenticado?.rol?.id === 5">
+                 <label class="text-xs font-bold text-slate-400 uppercase">Técnico Asignado</label>
+                 <select v-model="ticket.tecnicoAsignadoId" @change="asignarTecnico" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white">
+                   <option :value="null">Asignar un Técnico</option>
+                   <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">{{ tec.nombre }}</option>
+                 </select>
+               </div>
 
+             </div>
 
+             <!-- 3. BOTÓN AÑADIR NOTA (Disponible para todos, según la regla 4) -->
+             <button @click="agregarNota" class="w-full mt-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
+               Añadir Nota
+             </button>
+             <br>
+             <br>
+               <div class="bg-white p-4 rounded-xl border text-center border-slate-200 shadow-sm">
+                 <p class="text-slate-400 uppercase text-xs font-semibold">
+                   {{ ticket.estadoTicket === 'Finalizado' ? 'Estado' : (ticket.tecnicoAsignadoId ? 'Tiempo en Gestión' : 'Tiempo de Espera') }}
+                 </p>
+                   
+                 <div :class="['p-2 flex justify-center items-center gap-1 font-mono font-bold', tiempoTranscurrido.color]">
+                   <!-- Solo mostramos el ícono si no está finalizado -->
+                   <svg v-if="ticket.estadoTicket !== 'Finalizado'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                   </svg>
+                   
+                   <span>{{ tiempoTranscurrido.texto }}</span>
+                 </div>
+               </div>
+           </div>
+         </div>
+         <!--fin de modulo gestion caso-->
         </div>
-      </div>
     </div>
   </div>
 
@@ -427,6 +453,11 @@ const getClaseColor = computed(() => {
   if (min >= 20) return 'text-amber-500';  // 20 min
   if (min >= 10) return 'text-green-500';  // 10 min
   return 'text-slate-500'; // menos de 10 min
+});
+
+const rolUsuario = computed(() => {
+  // Ajusta según cómo guardes el usuario autenticado (ej: authStore.user.rol_id o usuarioAutenticado.value?.rol?.id)
+  return usuarioAutenticado.value?.rol?.id || usuarioAutenticado.value?.rol_id || 0;
 });
 
 const cargarTecnicos = async () => {
