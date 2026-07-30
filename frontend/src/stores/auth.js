@@ -1,11 +1,21 @@
 import { defineStore } from 'pinia'
-import axios from 'axios'
 import api from '@/services/api'
+
+// Función auxiliar segura para leer del sessionStorage
+const getStorageItem = (key) => {
+  try {
+    const item = sessionStorage.getItem(key)
+    return item ? JSON.parse(item) : null
+  } catch (e) {
+    return sessionStorage.getItem(key)
+  }
+}
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('user')) || null,
-    token: localStorage.getItem('token') || null,
+    // 💡 Cambiamos localStorage por sessionStorage
+    user: getStorageItem('user'),
+    token: sessionStorage.getItem('token') || null,
   }),
   
   getters: {
@@ -21,18 +31,17 @@ export const useAuthStore = defineStore('auth', {
   
   actions: {
     async login(email, password) {
-     
       try {
         const response = await api.post('/login', { email, password })
-        
         this.token = response.data.token
         this.user = response.data.usuario
         
-        localStorage.setItem('token', this.token)
-        localStorage.setItem('user', JSON.stringify(this.user))
-        
+        // 💡 Guardamos en sessionStorage en lugar de localStorage
+        sessionStorage.setItem('token', this.token)
+        sessionStorage.setItem('user', JSON.stringify(this.user))
+        sessionStorage.removeItem('saludoMostrado')//limpiar variable
         api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-        
+
         return { success: true }
       } catch (error) {
         console.error("Error en login:", error)
@@ -47,21 +56,22 @@ export const useAuthStore = defineStore('auth', {
       this.token = null
       this.user = null
       
-      localStorage.removeItem('token')
-      localStorage.removeItem('user')
+      // 💡 Limpiamos sessionStorage
+      sessionStorage.removeItem('token')
+      sessionStorage.removeItem('user')
       
       delete api.defaults.headers.common['Authorization']
     },
     
-    // Cargar token al iniciar la app (para que no se pierda al refrescar)
+    // Cargar token al iniciar la app
     init() {
-      const token = localStorage.getItem('token')
-      const user = localStorage.getItem('user')
+      const token = sessionStorage.getItem('token')
+      const user = sessionStorage.getItem('user')
       
       if (token && user) {
         this.token = token
         this.user = JSON.parse(user)
-       api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`
       }
     }
   }

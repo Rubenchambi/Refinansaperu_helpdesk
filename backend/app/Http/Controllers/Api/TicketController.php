@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Log;
 
 class TicketController extends Controller
 {
-public function index(Request $request)
+    public function index(Request $request)
     {
         // 1. Obtenemos el usuario autenticado
         $user = $request->user();
 
         $query = Ticket::with(['tecnico'])
-                     ->where('estado', true);
+                ->where('estado', true);
 
         // ==========================================
         // 2. FILTRADO SEGÚN ROL DEL USUARIO LOGUEADO
@@ -74,28 +74,37 @@ public function index(Request $request)
 
             $query->where(function($q) use ($search, $searchLower, $prioridadEncontrada) {
                 $q->orWhere('codigo_ticket', 'like', '%' . $search . '%')
-                  ->orWhere('asunto', 'ilike', '%' . $search . '%')
-                  ->orWhere('estadoTicket', 'ilike', '%' . $search . '%');
+                ->orWhere('asunto', 'ilike', '%' . $search . '%')
+                ->orWhere('estadoTicket', 'ilike', '%' . $search . '%');
 
                 if ($prioridadEncontrada !== null) {
                     $q->orWhere('prioridad', $prioridadEncontrada);
                 }
                 $q->orWhere('prioridad', 'like', '%' . $search . '%');
                 $q->orWhereHas('tecnico', function($subQuery) use ($search) {
-                      $subQuery->where('nombre', 'ilike', '%' . $search . '%');
-                  });
+                    $subQuery->where('nombre', 'ilike', '%' . $search . '%');
+                });
             });
         }
 
         // ==========================================
-        // 4. RETORNO CON ORDENACIÓN Y PAGINACIÓN
+        // 4. ORDENACIÓN Y RETORNO (Con soporte para ?all=true)
         // ==========================================
-        return TicketResource::collection($query->orderByRaw("CASE 
-                WHEN tipo_cola = 'soporte' THEN 1 
-                WHEN tipo_cola = 'general' THEN 2 
-                ELSE 3 
-                END ASC")
-            ->paginate(10));
+        
+        // Aplicamos primero el ordenamiento personalizado que ya tenías
+        $query->orderByRaw("CASE 
+            WHEN tipo_cola = 'soporte' THEN 1 
+            WHEN tipo_cola = 'general' THEN 2 
+            ELSE 3 
+            END ASC");
+
+        // Si viene el parámetro 'all', devolvemos la colección completa (para el Dashboard)
+        if ($request->has('all')) {
+            return TicketResource::collection($query->get());
+        }
+
+        // Por defecto, mantiene tu paginación de 9 para tu módulo normal de tickets
+        return TicketResource::collection($query->paginate(9));
     }
     public function store(Request $request)
     {
@@ -283,7 +292,7 @@ public function update(Request $request, $id)
         $usuario = auth()->user();
         $usuario->load('role');
 
-        if (!$usuario->role || !in_array($usuario->role->id, [1, 2])) {
+        if (!$usuario->role || !in_array($usuario->role->id, [1, 2,3,4,5])) {
             return response()->json(['message' => 'No tienes permisos para esta acción.'], 403);
         }
 
@@ -316,7 +325,7 @@ public function update(Request $request, $id)
         $usuario = auth()->user();
         $usuario->load('role');
 
-        if (!$usuario->role || !in_array($usuario->role->id, [1, 2])) {
+        if (!$usuario->role || !in_array($usuario->role->id, [1, 2,3,4,5])) {
             return response()->json(['message' => 'No tienes permisos.'], 403);
         }
         
@@ -406,13 +415,41 @@ public function update(Request $request, $id)
         }
     }
 
-    public function estadisticas()
+    public function estadisticas(Request $request)
     {
-        $total = Ticket::count();
-        $pendientes = Ticket::where('estadoTicket', 'Pendiente')->count();
-        $enProceso = Ticket::where('estadoTicket', 'En Proceso')->count();
-        $resuelto = Ticket::where('estadoTicket', 'Resuelto')->count();
-        $finalizados = Ticket::where('estadoTicket', 'Finalizado')->count();
+        // 1. Obtenemos el usuario autenticado y su rol
+        $user = $request->user();
+        $rolId = $user->rolId ?? ($user->role->id ?? null);
+
+        // 2. Creamos la consulta base aplicando las MISMAS reglas del index
+        $query = Ticket::where('estado', true);
+
+        if ($rolId === 5) {
+            // SUPERVISOR (ID: 5): Estadísticas de los tickets de sus carteras asignadas
+            $carterasIds = $user->carteras()->pluck('carteras.id'); 
+            
+            $query->whereHas('reportante', function($q) use ($carterasIds) {
+                $q->whereHas('carteras', function($subQ) use ($carterasIds) {
+                    $subQ->whereIn('carteras.id', $carterasIds);
+                });
+            });
+
+        } elseif ($rolId === 2) {
+            // TÉCNICO (ID: 2): Estadísticas de los tickets asignados a él
+            $query->where('tecnicoAsignadoId', $user->id); 
+
+        } elseif ($rolId === 3 || $rolId === 4) {
+            // ASESORES (Call ID: 3, Campo ID: 4): Estadísticas solo de los tickets que reportaron
+            $query->where('usuarioReportanteId', $user->id); 
+        }
+        // Si es Admin ($rolId === 1), cuenta todo sin restricciones.
+
+        // 3. Calculamos los totales filtrados según el rol
+        $total = (clone $query)->count();
+        $pendientes = (clone $query)->where('estadoTicket', 'Pendiente')->count();
+        $enProceso = (clone $query)->where('estadoTicket', 'En Proceso')->count();
+        $resuelto = (clone $query)->where('estadoTicket', 'Resuelto')->count();
+        $finalizados = (clone $query)->where('estadoTicket', 'Finalizado')->count();
 
         return response()->json([
             'total' => $total,

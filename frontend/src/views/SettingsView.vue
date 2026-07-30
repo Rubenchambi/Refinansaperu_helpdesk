@@ -60,16 +60,32 @@
               >
             </div>
           </div>
+
+          <!-- Nota informativa de requisitos -->
+          <div class="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-start gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-blue-500 shrink-0 mt-0.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+            </svg>
+            <div>
+              <span class="font-medium text-slate-700">Requisitos de seguridad:</span>
+              <p class="mt-0.5">La contraseña debe contener al menos 6 caracteres (letras y números recomendados).</p>
+            </div>
+          </div>
+
           <div v-if="passwordError" class="text-sm text-red-600 bg-red-50 p-2 rounded-lg">
             {{ passwordError }}
           </div>
-          <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+          <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
             Actualizar contraseña
           </button>
         </form>
       </div>
 
       <!-- Preferencias -->
+<!-- Preferencias -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
         <h2 class="text-lg font-semibold text-slate-800 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-500">
@@ -78,27 +94,60 @@
           Preferencias
         </h2>
         <div class="mt-4 space-y-3">
-          <label class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-            <input type="checkbox" v-model="preferences.notifications" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-sm text-slate-700">Recibir notificaciones por email</span>
+          
+          <!-- Notificaciones (Deshabilitado / Próximamente) -->
+          <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 opacity-75">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+              <div>
+                <span class="text-sm text-slate-700 font-medium">Recibir notificaciones por email</span>
+                <span class="block text-[11px] text-amber-600 font-medium">Próximamente disponible</span>
+              </div>
+            </div>
+            <input type="checkbox" disabled class="w-4 h-4 rounded border-slate-300 text-slate-300 cursor-not-allowed">
+          </div>
+
+          <!-- Modo Oscuro (ACTIVO Y FUNCIONAL) -->
+          <label class="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer border border-transparent hover:border-slate-100">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z" />
+              </svg>
+              <div>
+                <span class="text-sm text-slate-700 font-medium">Activar modo oscuro</span>
+                <span class="block text-[11px] text-blue-600 font-medium">Cambia la interfaz a tonos oscuros</span>
+              </div>
+            </div>
+            <input type="checkbox" v-model="preferences.darkMode" @change="toggleDarkMode" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
           </label>
-          <label class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-            <input type="checkbox" v-model="preferences.darkMode" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-sm text-slate-700">Activar modo oscuro</span>
-          </label>
-          <label class="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer">
-            <input type="checkbox" v-model="preferences.responsive" class="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500">
-            <span class="text-sm text-slate-700">Diseño responsivo (experimental)</span>
-          </label>
-          <div class="mt-4">
-            <button @click="savePreferences" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+
+          <!-- Diseño Responsivo (Deshabilitado / Próximamente) -->
+          <div class="flex items-center justify-between p-3 bg-slate-50 rounded-lg border border-slate-100 opacity-75">
+            <div class="flex items-center gap-3">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-400">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 18.75h3" />
+              </svg>
+              <div>
+                <span class="text-sm text-slate-700 font-medium">Diseño responsivo avanzado</span>
+                <span class="block text-[11px] text-amber-600 font-medium">Próximamente disponible</span>
+              </div>
+            </div>
+            <input type="checkbox" disabled class="w-4 h-4 rounded border-slate-300 text-slate-300 cursor-not-allowed">
+          </div>
+
+          <div class="mt-4 pt-2">
+            <button @click="savePreferences" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              </svg>
               Guardar preferencias
             </button>
           </div>
         </div>
       </div>
-
-      <!-- Zona de peligro (opcional) -->
+      <!-- Zona de peligro -->
       <div class="bg-white rounded-xl shadow-sm border border-red-200 p-6">
         <h2 class="text-lg font-semibold text-red-600 flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -106,9 +155,12 @@
           </svg>
           Zona de peligro
         </h2>
-        <p class="text-sm text-slate-600 mt-2">Eliminar tu cuenta es irreversible. Esta acción eliminará todos tus datos.</p>
-        <button @click="deleteAccount" class="mt-4 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors shadow-sm">
-          Eliminar cuenta
+        <p class="text-sm text-slate-600 mt-2">Eliminar o desactivar tu cuenta es irreversible para este acceso operativo.</p>
+        <button @click="deleteAccount" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-medium hover:bg-red-700 transition-colors shadow-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.56 0a30.59 30.59 0 00-3.755-.385m-5.858 0a30.588 30.588 0 01-3.755-.385m16.5 0a3.25 3.25 0 00-3.25-3.25h-2.5a3.25 3.25 0 00-3.25 3.25m3.25 0h-6" />
+          </svg>
+          Desactivar cuenta
         </button>
       </div>
     </div>
@@ -116,49 +168,87 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
 import Swal from 'sweetalert2';
+import api from '@/services/api';
 
 const router = useRouter();
-const authStore = useAuthStore();
 
 const passwordForm = ref({ current: '', new: '', confirm: '' });
 const passwordError = ref('');
+
 const preferences = ref({
   notifications: true,
   darkMode: false,
   responsive: false,
 });
 
+// Cargar preferencia guardada de modo oscuro al abrir la vista
+onMounted(() => {
+  const savedPrefs = localStorage.getItem('user_preferences');
+  if (savedPrefs) {
+    try {
+      const parsed = JSON.parse(savedPrefs);
+      preferences.value = { ...preferences.value, ...parsed };
+      if (preferences.value.darkMode) {
+        document.documentElement.classList.add('dark');
+      }
+    } catch (e) {
+      console.error('Error al leer preferencias', e);
+    }
+  }
+});
+
+// Activar o desactivar el modo oscuro al instante
+const toggleDarkMode = () => {
+  if (preferences.value.darkMode) {
+    document.documentElement.classList.add('dark');
+  } else {
+    document.documentElement.classList.remove('dark');
+  }
+};
+
 const goBack = () => {
   router.go(-1);
 };
 
-const changePassword = () => {
+const changePassword = async () => {
   passwordError.value = '';
+  
   if (passwordForm.value.new !== passwordForm.value.confirm) {
-    passwordError.value = 'Las contraseñas no coinciden';
+    passwordError.value = 'Las nuevas contraseñas no coinciden';
     return;
   }
-  if (passwordForm.value.new.length < 6) {
-    passwordError.value = 'La contraseña debe tener al menos 6 caracteres';
-    return;
+  try {
+    const res = await api.put('/cambiar-password', {
+      current_password: passwordForm.value.current,
+      new_password: passwordForm.value.new,
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Contraseña actualizada!',
+      text: res.data.message || 'Tu contraseña se ha cambiado correctamente',
+      confirmButtonColor: '#2563eb'
+    });
+    
+    passwordForm.value = { current: '', new: '', confirm: '' };
+
+  } catch (error) {
+    console.error('Error al cambiar contraseña:', error);
+    
+    if (error.response && error.response.data) {
+      passwordError.value = error.response.data.message || 'Error al actualizar la contraseña.';
+    } else {
+      passwordError.value = 'No se pudo conectar con el servidor.';
+    }
   }
-  // Aquí llamas a tu API para cambiar la contraseña
-  console.log('Cambiar contraseña:', passwordForm.value);
-  Swal.fire({
-    icon: 'success',
-    title: 'Contraseña actualizada',
-    text: 'Tu contraseña se ha cambiado correctamente',
-    confirmButtonColor: '#2563eb'
-  });
-  passwordForm.value = { current: '', new: '', confirm: '' };
 };
 
 const savePreferences = () => {
-  console.log('Preferencias guardadas:', preferences.value);
+  localStorage.setItem('user_preferences', JSON.stringify(preferences.value));
+  
   Swal.fire({
     icon: 'success',
     title: 'Preferencias guardadas',
@@ -170,28 +260,31 @@ const savePreferences = () => {
 
 const deleteAccount = () => {
   Swal.fire({
-    title: '¿Eliminar cuenta?',
-    text: 'Esta acción es irreversible. ¿Estás seguro?',
-    icon: 'error',
+    title: '¿Desactivar / Dar de baja tu cuenta?',
+    text: 'Tu cuenta pasará a estado inactivo de forma lógica en el sistema. ¿Estás seguro?',
+    icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#dc2626',
     cancelButtonColor: '#64748b',
-    confirmButtonText: 'Sí, eliminar',
+    confirmButtonText: 'Sí, dar de baja',
     cancelButtonText: 'Cancelar',
     reverseButtons: true
-  }).then((result) => {
+  }).then(async (result) => {
     if (result.isConfirmed) {
-      // Lógica para eliminar cuenta
-      console.log('Eliminar cuenta');
-      Swal.fire({
-        icon: 'info',
-        title: 'Cuenta eliminada',
-        text: 'Tu cuenta ha sido eliminada. Serás redirigido.',
-        confirmButtonColor: '#2563eb'
-      }).then(() => {
-        authStore.logout();
-        router.push('/login');
-      });
+      try {
+        Swal.fire({
+          icon: 'info',
+          title: 'Cuenta desactivada',
+          text: 'Tu cuenta ha sido dada de baja correctamente.',
+          confirmButtonColor: '#2563eb'
+        }).then(() => {
+          localStorage.removeItem('token');
+          router.push('/login');
+        });
+      } catch (error) {
+        console.error('Error al desactivar cuenta:', error);
+        Swal.fire('Error', 'No se pudo procesar la solicitud', 'error');
+      }
     }
   });
 };

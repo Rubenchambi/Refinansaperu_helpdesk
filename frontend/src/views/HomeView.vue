@@ -275,12 +275,12 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <tr v-for="ticket in ticketsFiltrados" :key="ticket.id" class="hover:bg-slate-50 transition-colors">
+            <tr v-for="ticket in ticketsPaginados" :key="ticket.id" class="hover:bg-slate-50 transition-colors">
               <td class="p-4 text-sm font-medium text-slate-700">Nro° : {{ ticket.codigo_ticket }}</td>
               <td class="p-4 text-sm text-slate-800 font-medium">{{ ticket.asunto }}</td>
               <td class="p-4 text-sm text-slate-600">{{ ticket.usuario_nombre }}</td>
               
-              <!-- ESTADO ADAPTADO CON TUS SVGS Y ESTILOS -->
+              <!-- ESTADO -->
               <td class="p-4">
                 <span :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-xs', getEstadoBadgeStyle(ticket.estadoTicket).clase]">
                   <svg v-if="ticket.estadoTicket === 'Pendiente'" class="w-3.5 h-3.5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -300,7 +300,7 @@
                 </span>
               </td>
 
-              <!-- PRIORIDAD ADAPTADA CON TUS ESTILOS -->
+              <!-- PRIORIDAD -->
               <td class="p-4">
                 <span class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-slate-100 border border-slate-200 text-sm font-medium">
                   <span class="w-2.5 h-2.5 rounded-full animate-ping" :class="getPrioridadColor(ticket.prioridad)"></span>
@@ -310,14 +310,12 @@
 
               <td class="p-4">
                 <span :class="['inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border shadow-xs', getTecnicoBadgeStyle(ticket).clase]">
-                  <!-- Ícono dinámico -->
                   <svg v-if="!ticket.tecnicoAsignadoId" class="w-3.5 h-3.5 animate-ping" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                   </svg>
                   <svg v-else class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
-
                   <span>{{ getTecnicoBadgeStyle(ticket).texto }}</span>
                 </span>
               </td>
@@ -327,17 +325,39 @@
                   <router-link :to="`/tickets/${ticket.id}`" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-500 hover:text-white transition-all shadow-sm" title="Ver detalle">
                     <i data-lucide="eye" class="w-4 h-4"></i>
                   </router-link>
-                <button @click="irAEditar(ticket)" :disabled="ticket.estadoTicket === 'Finalizado'" class="p-2 bg-yellow-50 text-yellow-600 rounded-lg hover:bg-yellow-500 hover:text-white transition-all shadow-sm" title="Editar">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-                </button>
-                  <button @click="eliminarTicket(ticket.id)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white transition-all shadow-sm" title="Eliminar">
-                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                  </button>
                 </div>
+              </td>
+            </tr>
+            <tr v-if="ticketsFiltrados.length === 0">
+              <td colspan="8" class="p-6 text-center text-slate-400 text-sm">
+                No se encontraron tickets registrados o coincidentes.
               </td>
             </tr>
           </tbody>
         </table>
+      </div>
+
+      <!-- CONTROLES DE PAGINACIÓN -->
+      <div v-if="totalPaginas > 1" class="p-4 border-t border-gray-100 flex items-center justify-between bg-white">
+        <span class="text-sm text-slate-500">
+          Mostrando página <span class="font-semibold text-slate-700">{{ paginaActual }}</span> de <span class="font-semibold text-slate-700">{{ totalPaginas }}</span> ({{ ticketsFiltrados.length }} tickets en total)
+        </span>
+        <div class="flex items-center gap-2">
+          <button 
+            @click="paginaActual--" 
+            :disabled="paginaActual === 1"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+          >
+            Anterior
+          </button>
+          <button 
+            @click="paginaActual++" 
+            :disabled="paginaActual >= totalPaginas"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg border border-gray-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-xs"
+          >
+            Siguiente
+          </button>
+        </div>
       </div>
 
     </div>
@@ -345,33 +365,52 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue';
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue';
 import { createIcons, icons } from 'lucide';
 import api from '@/services/api';
 import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
+import { useAuthStore } from '@/stores/auth'; // ⚡ Importamos el store para el usuario
+
+const authStore = useAuthStore();
 const stats = ref({ total: 0, pendientes: 0, en_proceso: 0, resuelto: 0, finalizados: 0 });
 const tickets = ref([]);
 const busqueda = ref('');
 const filtroEstado = ref('');
 const router = useRouter();
+let intervaloRefresco = null;
+
+// Variables para la paginación frontal
+const paginaActual = ref(1);
+const porPagina = ref(5); // Puedes cambiar a 10 si prefieres ver más por página
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 5000,
+  timerProgressBar: true,
+  didOpen: (toast) => {
+    toast.onmouseenter = Swal.stopTimer;
+    toast.onmouseleave = Swal.resumeTimer;
+  }
+});
 
 const cargarDatos = async () => {
   try {
     const [resStats, resTickets] = await Promise.all([
       api.get('/tickets-estadisticas'),
-      api.get('/tickets')
+      api.get('/tickets?all=true')
     ]);
     stats.value = resStats.data;
     tickets.value = resTickets.data.data || resTickets.data;
-    console.log('datos:',resTickets)
+
     await nextTick();
     createIcons({ icons });
   } catch (error) {
     console.error('Error al cargar dashboard:', error);
   }
 };
-
-const irAEditar = (ticket) => router.push({ name: 'tickets.form', params: { id: ticket.id } });
 
 const ticketsRecientes = computed(() => {
   return tickets.value.slice(0, 4);
@@ -383,6 +422,27 @@ const ticketsFiltrados = computed(() => {
     const coincideEstado = filtroEstado.value ? t.estadoTicket === filtroEstado.value : true;
     return coincideBusqueda && coincideEstado;
   });
+});
+
+// Computados para la Paginación
+const totalPaginas = computed(() => {
+  return Math.ceil(ticketsFiltrados.value.length / porPagina.value) || 1;
+});
+
+const ticketsPaginados = computed(() => {
+  const inicio = (paginaActual.value - 1) * porPagina.value;
+  const fin = inicio + porPagina.value;
+  
+  return ticketsFiltrados.value.slice(inicio, fin);
+});
+
+// Reiniciar a la página 1 cada vez que filtren o busquen algo
+watch([busqueda, filtroEstado], () => {
+  paginaActual.value = 1;
+});
+watch(paginaActual, async () => {
+  await nextTick();
+  createIcons({ icons });
 });
 
 const getTecnicoBadgeStyle = (ticket) => {
@@ -399,13 +459,12 @@ const getTecnicoBadgeStyle = (ticket) => {
   };
 };
 
-// Helpers para estilos de Estado en tabla
 const getEstadoBadgeStyle = (estado) => {
   switch (estado) {
     case 'Pendiente':
       return { clase: 'bg-yellow-50 text-yellow-700 border-yellow-200' };
     case 'En Proceso':
-      return { clase: 'bg-skiblue-50 text-blue-700 border-blue-200' };
+      return { clase: 'bg-blue-50 text-blue-700 border-blue-200' };
     case 'Resuelto':
       return { clase: 'bg-indigo-100 text-indigo-700 border-indigo-200' };
     case 'Finalizado':
@@ -415,7 +474,6 @@ const getEstadoBadgeStyle = (estado) => {
   }
 };
 
-// Helpers para Prioridad blindados contra números y nulos
 const getPrioridadColor = (prioridad) => {
   if (!prioridad) return 'bg-blue-500';
   const val = String(prioridad).toLowerCase();
@@ -425,7 +483,7 @@ const getPrioridadColor = (prioridad) => {
     case '1':
       return 'bg-red-500';
     case 'alta':
-    case '2': // Por si en BD se guarda con números
+    case '2':
       return 'bg-orange-500';
     case 'media':
     case '3':
@@ -440,7 +498,6 @@ const getPrioridadColor = (prioridad) => {
 
 const getPrioridadNombre = (prioridad) => {
   if (!prioridad) return 'Normal';
-  // Si en tu BD guardas números para la prioridad, los mapeamos a texto amigable aquí:
   const mapTexto = {
     '1': 'Urgente',
     '2': 'Alta',
@@ -451,7 +508,7 @@ const getPrioridadNombre = (prioridad) => {
   return mapTexto[String(prioridad).toLowerCase()] || prioridad;
 };
 
-// Gráfica SVG proporcional (Pendiente, En Proceso, Resuelto, Finalizado)
+// Gráfica SVG proporcional
 const circumference = 251.2;
 
 const dashPendientes = computed(() => {
@@ -494,18 +551,28 @@ const offsetFinalizados = computed(() => {
   return -(pendientesVal + enProcesoVal + resueltoVal);
 });
 
-const eliminarTicket = async (id) => {
-  if (confirm('¿Estás seguro de eliminar este ticket?')) {
-    try {
-      await api.delete(`/tickets/${id}`);
-      await cargarDatos();
-    } catch (error) {
-      console.error('Error al eliminar:', error);
-    }
-  }
-};
-
 onMounted(() => {
   cargarDatos();
+  
+  // Saludo de bienvenida flotante al entrar al Home tras loguearse
+  if (authStore.user && !sessionStorage.getItem('saludoMostrado')) {
+    const nombreUsuario = authStore.user.nombre || authStore.user.name || 'usuario';
+    
+    Toast.fire({
+      icon: 'success',
+      title: `¡Bienvenido de nuevo, ${nombreUsuario}!`
+    });
+
+    sessionStorage.setItem('saludoMostrado', 'true');
+  }
+
+  intervaloRefresco = setInterval(() => {
+    cargarDatos();
+  }, 12000);
+});
+
+onUnmounted(() => {
+  // Limpieza vital del intervalo al salir del dashboard para cuidar recursos
+  clearInterval(intervaloRefresco);
 });
 </script>

@@ -24,6 +24,7 @@ class UsuarioResource extends JsonResource
             'rolId'          => $this->rolId,
             'rol'            => $this->role ? $this->role->nombre : 'Sin rol',
             'estado'         => $this->estado,
+            'created_at'     => $this->created_at,
             'areas'          => AreaResource::collection($this->whenLoaded('areas')),
             'carteras'       => $this->carteras ? $this->carteras->pluck('nombre_cartera') : [],
         ];

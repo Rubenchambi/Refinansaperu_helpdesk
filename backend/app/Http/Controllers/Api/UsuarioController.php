@@ -10,10 +10,31 @@ use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
-    // Listar (con filtros y paginación)
+// Listar (con filtros y paginación)
     public function index(Request $request)
     {
-        $query = Usuario::where('estado', true)->with(['areas', 'role']);
+        $userPersona = $request->user(); // Usuario logueado actual
+        $rolId = $userPersona->rolId ?? ($userPersona->role->id ?? null);
+
+        $query = Usuario::where('estado', true)->with(['areas', 'role', 'carteras']);
+
+        // ==========================================
+        // FILTRADO DE REPORTANTES PARA EL SELECT
+        // ==========================================
+        if ($request->has('para_reportante')) {
+            if ($rolId === 5) {
+                // Si es SUPERVISOR (ID: 5): Solo ve usuarios de sus carteras asignadas
+                $carterasIds = $userPersona->carteras()->pluck('carteras.id');
+                
+                $query->whereHas('carteras', function($subQ) use ($carterasIds) {
+                    $subQ->whereIn('carteras.id', $carterasIds);
+                });
+            } elseif ($rolId === 3 || $rolId === 4) {
+                // Si es ASESOR CALL (3) o CAMPO (4): Solo se ve a sí mismo
+                $query->where('id', $userPersona->id);
+            }
+            // Si es Admin (1) o Técnico (2), no se les aplica restricción extra aquí.
+        }
 
         if ($request->filled('nombre')) {
             $query->where('nombre', 'ilike', '%' . $request->nombre . '%');
@@ -66,52 +87,59 @@ class UsuarioController extends Controller
 
     // Actualizar
    public function update(Request $request, $id)
-{
-    $usuario = Usuario::findOrFail($id);
-    $validated = $request->validate([
-        'nombre'     => 'sometimes|required|string',
-        'apellidos'  => 'sometimes|required|string',
-        'dni'        => 'sometimes|required|unique:usuarios,dni,' . $id,
-        'email'      => 'sometimes|required|email|unique:usuarios,email,' . $id,
-        'password'   => 'nullable|string|min:6',
-        'rolId'      => 'sometimes|required|exists:roles,id',
-        'area_ids'   => 'nullable|array', 
-        'area_ids.*' => 'exists:areas,id',
-    ]);
-
-    if ($request->filled('password')) {
-        $validated['password'] = Hash::make($request->password);
-    } else {
-        unset($validated['password']);
-    }
-
-    if ($request->has('area_ids')) {
-        $usuario->areas()->sync($request->area_ids);
-    }
-    
-    if ($request->has('cartera_ids')) {
-            $usuario->carteras()->sync($request->cartera_ids);
-    }
-    // 4. Limpiamos antes de actualizar el modelo principal
-    unset($validated['area_ids']);
-    unset($validated['cartera_ids']);
-    // 5. Guardamos cambios
-    $usuario->update($validated);
-
-    return response()->json([
-        'message' => 'Usuario actualizado.', 
-        'data' => new UsuarioResource($usuario)
-    ]);
-}
-
-    // Eliminación lógica
-    public function destroy($id)
     {
-        Usuario::findOrFail($id)->update(['estado' => false]);
-        return response()->json(['message' => 'Usuario eliminado.']);
+        $usuario = Usuario::findOrFail($id);
+        $validated = $request->validate([
+            'nombre'     => 'sometimes|required|string',
+            'apellidos'  => 'sometimes|required|string',
+            'dni'        => 'sometimes|required|unique:usuarios,dni,' . $id,
+            'email'      => 'sometimes|required|email|unique:usuarios,email,' . $id,
+            'password'   => 'nullable|string|min:6',
+            'rolId'      => 'sometimes|required|exists:roles,id',
+            'area_ids'   => 'nullable|array', 
+            'area_ids.*' => 'exists:areas,id',
+        ]);
+
+        if ($request->filled('password')) {
+            $validated['password'] = Hash::make($request->password);
+        } else {
+            unset($validated['password']);
+        }
+
+        if ($request->has('area_ids')) {
+            $usuario->areas()->sync($request->area_ids);
+        }
+        
+        if ($request->has('cartera_ids')) {
+                $usuario->carteras()->sync($request->cartera_ids);
+        }
+        // 4. Limpiamos antes de actualizar el modelo principal
+        unset($validated['area_ids']);
+        unset($validated['cartera_ids']);
+        // 5. Guardamos cambios
+        $usuario->update($validated);
+
+        return response()->json([
+            'message' => 'Usuario actualizado.', 
+            'data' => new UsuarioResource($usuario)
+        ]);
     }
 
-    public function getTecnicos() {
-    return response()->json(Usuario::where('rolId', 2)->get());
-}
+        // Eliminación lógica
+    public function destroy($id)
+        {
+            Usuario::findOrFail($id)->update(['estado' => false]);
+            return response()->json(['message' => 'Usuario eliminado.']);
+        }
+
+        public function getTecnicos() {
+        return response()->json(Usuario::where('rolId', 2)->get());
+        }
+
+    public function perfilActual(Request $request)
+        {
+            $usuario = $request->user()->load(['role', 'carteras']);
+            return new UsuarioResource($usuario);
+        }
+
 }

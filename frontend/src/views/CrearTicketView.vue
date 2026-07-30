@@ -21,15 +21,21 @@
             <span class="w-1 h-6 bg-blue-600 rounded"></span> Datos del Caso
           </h2>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label class="block text-sm font-medium text-slate-700 mb-1">Usuario / Reportante</label>
-              <select v-model="form.usuarioReportanteId" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                <option value="">Seleccione al usuario...</option>
-                <option v-for="user in usuarios" :key="user.id" :value="user.id">
-                  {{ user.nombreCompleto }}
-                </option>
-              </select>
-            </div>
+<div>
+  <label class="block text-sm font-medium text-slate-700 mb-1">Usuario / Reportante</label>
+  <select 
+    v-model="form.usuarioReportanteId" 
+    :disabled="esAsesor"
+    :class="{'bg-slate-200 cursor-not-allowed': esAsesor}"
+    class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+  >
+    <option value="">Seleccione al usuario...</option>
+    <option v-for="user in usuarios" :key="user.id" :value="user.id">
+      {{ user.nombreCompleto || (user.nombre + ' ' + user.apellidos) }}
+    </option>
+  </select>
+  <p v-if="esAsesor" class="text-xs text-slate-400 mt-1">Asignado automáticamente por tu rol de asesor.</p>
+</div>
             
             <div>
               <label class="block text-sm font-medium text-slate-700 mb-1">Tipo de Caso</label>
@@ -204,7 +210,7 @@ const route = useRoute();
 const imagenActualUrl = ref(null);
 const documentosActuales = ref([]);
 const esEdicion = computed(() => !!route.params.id);
-
+const usuarioLogueado = ref(null);
 const form = ref({
   usuarioReportanteId: '',
   tipoCasoId: '',
@@ -249,16 +255,33 @@ const quitarDocumento = (index) => {
   form.value.documentos.splice(index, 1);
 };
 
+const esAsesor = computed(() => {
+  const rol = usuarioLogueado.value?.rolId || usuarioLogueado.value?.role?.id;
+  return rol === 3 || rol === 4;
+});
+
 const cargarCatalogos = async () => {
   try {
+    // 1. Obtenemos primero al usuario autenticado para saber su rol
+    const resPerfil = await api.get('usuarios/perfil-actual');
+    usuarioLogueado.value = resPerfil.data.data || resPerfil.data;
+
+    // 2. Cargamos los usuarios pasando el parámetro para que el backend filtre según su rol
     const [resUsuarios, resTipos] = await Promise.all([
-      api.get('/usuarios?all=true'),
+      api.get('/usuarios?all=true&para_reportante=true'),
       api.get('/tipos-casos?all=true')
     ]);
+
     usuarios.value = resUsuarios.data.data || resUsuarios.data;
     tiposCaso.value = resTipos.data.data || resTipos.data;
+
+    // 3. Si es un nuevo ticket y es Asesor, autoseleccionamos su propio ID por defecto
+    if (!esEdicion.value && esAsesor.value && usuarioLogueado.value) {
+      form.value.usuarioReportanteId = usuarioLogueado.value.id;
+    }
+
   } catch (error) {
-    console.error("Error cargando catálogos", error);
+    console.error("Error cargando catálogos o perfil", error);
   }
 };
 

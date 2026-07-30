@@ -1,5 +1,5 @@
 <template>
-  <div class="p-8">
+  <div class="p-4">
 <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
   <!-- Izquierda: Título del Módulo -->
   <div class="flex-none">
@@ -155,7 +155,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted,watch } from 'vue';
+import { ref, onMounted, onUnmounted,watch } from 'vue';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
@@ -164,7 +164,7 @@ const tickets = ref([]);
 const meta = ref({});
 const router = useRouter();
 const filters = ref({busqueda: '',});
-
+let intervaloRefresco = null;
 
 const irAEditar = (ticket) => router.push({ name: 'tickets.form', params: { id: ticket.id } });
 
@@ -236,6 +236,19 @@ const getTecnicoBadgeStyle = (ticket) => {
 watch(() => filters.value.busqueda, () => {
   cargarTickets(1);
 });
+onMounted(() => {
+  cargarTickets();
 
-onMounted(() => cargarTickets());
+  // Sincronización automática de la lista cada 12 segundos
+  intervaloRefresco = setInterval(() => {
+    // Usamos la página actual o 1 para no romper la paginación si el usuario está navegando
+    const paginaActual = meta.value?.current_page || 1;
+    cargarTickets(paginaActual);
+  }, 12000);
+});
+
+onUnmounted(() => {
+  // Limpieza vital del intervalo al salir de la vista del listado
+  clearInterval(intervaloRefresco);
+});
 </script>

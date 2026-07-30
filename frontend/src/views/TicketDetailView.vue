@@ -128,6 +128,7 @@
           <!-- ACCIONES: Ver en Popup y Descargar -->
           <div class="flex items-center gap-1 shrink-0">
             <button 
+              v-if="archivo.extension?.toLowerCase() === 'pdf'"
               @click="abrirVisor(archivo.url, 'pdf', archivo.nombre_original)"
               class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
               title="Visualizar documento"
@@ -153,7 +154,6 @@
 </div>
 
 
-          <!-- inicio de modulo gestion caso-->
           <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
             <h2 class="font-semibold text-slate-700 mb-6 flex items-center gap-2">
               <span class="w-1 h-5 bg-blue-600 rounded"></span> Historial de Seguimiento
@@ -186,90 +186,113 @@
           </div>
         </div>
 <!-- inicio de modulo gestion caso-->
-         <div class="space-y-6">
-           <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm sticky top-6">
-             <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4">Gestión del Caso</h3>
-             
-             <div class="space-y-4 mb-6">
-               <div><label class="text-xs text-slate-500">Prioridad</label>
-                 <div class="flex items-center gap-2 mt-1"><div class="w-3 h-3 rounded-full" :class="prioridadColor"></div> {{ ticket.prioridad }}</div>
-               </div>
-               <div><label class="text-xs text-slate-500">Estado</label>
-                 <div class="mt-1 font-semibold text-blue-700">{{ ticket.estadoTicket }}</div>
-               </div>
-             </div>
+<div class="space-y-6">
+  <div 
+    class="bg-white p-6 rounded-xl border shadow-sm sticky top-6 transition-all duration-300"
+    :class="ticket.estadoTicket === 'Finalizado' 
+      ? 'border-slate-200 opacity-60 pointer-events-none select-none grayscale' 
+      : 'border-slate-200'"
+  >
+    <!-- Badge cuando está finalizado -->
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Gestión del Caso</h3>
+      <span 
+        v-if="ticket.estadoTicket === 'Finalizado'" 
+        class="px-2.5 py-1 bg-slate-100 text-slate-500 text-[10px] font-bold rounded-md uppercase tracking-wider border border-slate-200"
+      >
+        🔒 Caso Finalizado
+      </span>
+    </div>
+    
+    <div class="space-y-4 mb-6">
+      <div><label class="text-xs text-slate-500">Prioridad</label>
+        <div class="flex items-center gap-2 mt-1"><div class="w-3 h-3 rounded-full" :class="prioridadColor"></div> {{ ticket.prioridad }}</div>
+      </div>
+      <div><label class="text-xs text-slate-500">Estado</label>
+        <div class="mt-1 font-semibold text-blue-700">{{ ticket.estadoTicket }}</div>
+      </div>
+    </div>
 
-             <!-- CONTROLES DE ESTADO Y ASIGNACIÓN SEGÚN ROL -->
-             <div class="space-y-4 pt-4 border-t border-slate-100">
-               
-               <!-- 1. SELECTOR DE ESTADO (Visible para todos, pero con opciones limitadas por rol) -->
-               <div>
-                 <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
-                 <select v-model="ticket.estadoTicket" @change="cambiarEstado" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white">
-                   
-                   <!-- ADMIN (ID: 1): Todas las opciones -->
-                   <template v-if="usuarioAutenticado?.rol?.id === 1">
-                     <option value="Pendiente">Pendiente</option>
-                     <option value="En Proceso">En Proceso</option>
-                     <option value="Resuelto">Resuelto</option>
-                     <option value="Finalizado">Finalizado</option>
-                   </template>
+    <!-- CONTROLES DE ESTADO Y ASIGNACIÓN SEGÚN ROL -->
+    <div class="space-y-4 pt-4 border-t border-slate-100">
+      
+      <!-- 1. SELECTOR DE ESTADO -->
+      <div>
+        <label class="text-xs font-bold text-slate-400 uppercase">Estado</label>
+        <select 
+          v-model="ticket.estadoTicket" 
+          @change="cambiarEstado" 
+          :disabled="ticket.estadoTicket === 'Finalizado'"
+          class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+        >
+          <!-- ADMIN (ID: 1): Todas las opciones -->
+          <template v-if="usuarioAutenticado?.rol?.id === 1">
+            <option value="Pendiente">Pendiente</option>
+            <option value="En Proceso">En Proceso</option>
+            <option value="Resuelto">Resuelto</option>
+            <option value="Finalizado">Finalizado</option>
+          </template>
 
-                   <!-- SUPERVISOR (ID: 5): En Proceso o Resuelto -->
-                   <template v-else-if="usuarioAutenticado?.rol?.id === 5">
-                     <option value="En Proceso">En Proceso</option>
-                     <option value="Resuelto">Resuelto</option>
-                   </template>
+          <!-- SUPERVISOR (ID: 5): En Proceso o Resuelto -->
+          <template v-else-if="usuarioAutenticado?.rol?.id === 5">
+            <option value="En Proceso">En Proceso</option>
+            <option value="Resuelto">Resuelto</option>
+          </template>
 
-                   <!-- TÉCNICO (ID: 2): Solo Finalizado -->
-                   <template v-else-if="usuarioAutenticado?.rol?.id === 2">
-                     <option value="Finalizado">Finalizado</option>
-                   </template>
+          <!-- TÉCNICO (ID: 2): Solo Finalizado -->
+          <template v-else-if="usuarioAutenticado?.rol?.id === 2">
+            <option value="Finalizado">Finalizado</option>
+          </template>
 
-                   <!-- USUARIO NORMAL (Asesor Campo ID: 4, Asesor Call ID: 3, u otros): Solo Resuelto / Volver a colocar resuelto -->
-                   <template v-else>
-                     <option value="Resuelto">Resuelto</option>
-                     <!-- Si ya está resuelto y necesita la opción de alternar/volver a colocar según la regla -->
-                     <option v-if="ticket.estadoTicket === 'Resuelto'" value="Pendiente">Pendiente (Volver a abrir)</option>
-                   </template>
+          <!-- USUARIO NORMAL -->
+          <template v-else>
+            <option value="Resuelto">Resuelto</option>
+            <option v-if="ticket.estadoTicket === 'Resuelto'" value="Pendiente">Pendiente (Volver a abrir)</option>
+          </template>
+        </select>
+      </div>
 
-                 </select>
-               </div>
+      <!-- 2. SELECTOR DE TÉCNICO ASIGNADO -->
+      <div v-if="usuarioAutenticado?.rol?.id === 1 || usuarioAutenticado?.rol?.id === 5">
+        <label class="text-xs font-bold text-slate-400 uppercase">Técnico Asignado</label>
+        <select 
+          v-model="ticket.tecnicoAsignadoId" 
+          @change="asignarTecnico" 
+          :disabled="ticket.estadoTicket === 'Finalizado'"
+          class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed"
+        >
+          <option :value="null">Asignar un Técnico</option>
+          <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">{{ tec.nombre }}</option>
+        </select>
+      </div>
 
-               <!-- 2. SELECTOR DE TÉCNICO ASIGNADO (Solo Admin ID: 1 y Supervisor ID: 5) -->
-               <div v-if="usuarioAutenticado?.rol?.id === 1 || usuarioAutenticado?.rol?.id === 5">
-                 <label class="text-xs font-bold text-slate-400 uppercase">Técnico Asignado</label>
-                 <select v-model="ticket.tecnicoAsignadoId" @change="asignarTecnico" class="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm bg-white">
-                   <option :value="null">Asignar un Técnico</option>
-                   <option v-for="tec in tecnicos" :key="tec.id" :value="tec.id">{{ tec.nombre }}</option>
-                 </select>
-               </div>
+    </div>
 
-             </div>
-
-             <!-- 3. BOTÓN AÑADIR NOTA (Disponible para todos, según la regla 4) -->
-             <button @click="agregarNota" class="w-full mt-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700">
-               Añadir Nota
-             </button>
-             <br>
-             <br>
-               <div class="bg-white p-4 rounded-xl border text-center border-slate-200 shadow-sm">
-                 <p class="text-slate-400 uppercase text-xs font-semibold">
-                   {{ ticket.estadoTicket === 'Finalizado' ? 'Estado' : (ticket.tecnicoAsignadoId ? 'Tiempo en Gestión' : 'Tiempo de Espera') }}
-                 </p>
-                   
-                 <div :class="['p-2 flex justify-center items-center gap-1 font-mono font-bold', tiempoTranscurrido.color]">
-                   <!-- Solo mostramos el ícono si no está finalizado -->
-                   <svg v-if="ticket.estadoTicket !== 'Finalizado'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                   </svg>
-                   
-                   <span>{{ tiempoTranscurrido.texto }}</span>
-                 </div>
-               </div>
-           </div>
-         </div>
-         <!--fin de modulo gestion caso-->
+    <!-- 3. BOTÓN AÑADIR NOTA -->
+    <button 
+      @click="agregarNota" 
+      :disabled="ticket.estadoTicket === 'Finalizado'"
+      class="w-full mt-6 py-2.5 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed disabled:hover:bg-slate-300 transition-colors"
+    >
+      Añadir Nota
+    </button>
+    <br>
+    <br>
+    <div class="bg-white p-4 rounded-xl border text-center border-slate-200 shadow-sm">
+      <p class="text-slate-400 uppercase text-xs font-semibold">
+        {{ ticket.estadoTicket === 'Finalizado' ? 'Estado' : (ticket.tecnicoAsignadoId ? 'Tiempo en Gestión' : 'Tiempo de Espera') }}
+      </p>
+        
+      <div :class="['p-2 flex justify-center items-center gap-1 font-mono font-bold', tiempoTranscurrido.color]">
+        <svg v-if="ticket.estadoTicket !== 'Finalizado'" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <span>{{ tiempoTranscurrido.texto }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+<!--fin de modulo gestion caso-->
         </div>
     </div>
   </div>
@@ -326,7 +349,7 @@
 
 
 <script setup>
-import { ref, onMounted,onUnmounted, computed } from 'vue';
+import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
@@ -336,8 +359,9 @@ import {
   Calendar as CalendarIcon, 
   FileText as FileTextIcon,
   Type, AlignLeft, Calendar, UserCheck, Paperclip, 
-  Image as ImageIcon,Download, ExternalLink, X, Eye 
- } from 'lucide-vue-next'
+  Image as ImageIcon, Download, ExternalLink, X, Eye 
+} from 'lucide-vue-next';
+
 const route = useRoute();
 const ticket = ref({});
 const bitacora = ref([]);
@@ -345,11 +369,22 @@ const authStore = useAuthStore();
 const tecnicos = ref([]);
 const usuarioAutenticado = computed(() => authStore.user);
 const ahora = ref(new Date());
-const mostrarModal = ref(false)
-const archivoSeleccionado = ref({ url: '', tipo: '', nombre: '' })
-let intervalo = null;
+const mostrarModal = ref(false);
+const archivoSeleccionado = ref({ url: '', tipo: '', nombre: '' });
 
-// NUEVA FUNCIÓN: Descarga forzada AJAX segura
+let intervaloReloj = null;
+let intervaloRefrescoTicket = null;
+
+// Configuración del Toast de SweetAlert2
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true
+});
+
+// Descarga segura de archivos mediante Axios (Blob)
 const descargarArchivo = async (rutaOUrl, nombreOriginal) => {
   if (!rutaOUrl) return;
 
@@ -364,10 +399,9 @@ const descargarArchivo = async (rutaOUrl, nombreOriginal) => {
         ruta: rutaLimpia,
         nombre: nombreOriginal 
       },
-      responseType: 'blob' // <-- Esto le dice a Axios: "trátalo como archivo binario"
+      responseType: 'blob'
     });
 
-    // Creamos el archivo temporal en el navegador con su tipo MIME real (imagen/pdf)
     const blob = new Blob([response.data], { type: response.headers['content-type'] });
     const urlLocal = window.URL.createObjectURL(blob);
     
@@ -385,21 +419,18 @@ const descargarArchivo = async (rutaOUrl, nombreOriginal) => {
     console.error('Error al descargar el archivo:', error);
   }
 };
-// Función para abrir el modal con el contenido adecuado
+
 const abrirVisor = (url, tipo, nombre = '') => {
-  archivoSeleccionado.value = { url, tipo, nombre }
-  mostrarModal.value = true
-}
+  archivoSeleccionado.value = { url, tipo, nombre };
+  mostrarModal.value = true;
+};
+
 const prioridadColor = computed(() => {
   const map = { '1': 'bg-red-600', '2': 'bg-orange-500', '3': 'bg-yellow-400', '4': 'bg-green-500' };
   return map[ticket.value.prioridad] || 'bg-slate-400';
 });
 
-// En el script setup
-onUnmounted(() => clearInterval(intervalo));
-
 const tiempoTranscurrido = computed(() => {
-  // 1. Caso Finalizado (Mensaje fijo)
   if (ticket.value.estadoTicket === 'Finalizado') {
     return {
       texto: 'Ticket Finalizado',
@@ -407,15 +438,11 @@ const tiempoTranscurrido = computed(() => {
     };
   }
 
-  // 2. Cálculo normal para otros estados
   const tieneTecnico = ticket.value.tecnicoAsignadoId !== null;
-  const fechaReferencia = tieneTecnico 
-    ? ticket.value.asignado_at 
-    : ticket.value.fecha_creacion;
+  const fechaReferencia = tieneTecnico ? ticket.value.asignado_at : ticket.value.fecha_creacion;
 
   if (!fechaReferencia) return { texto: 'Esperando...', color: 'text-slate-400' };
 
-  // Convertimos string a fecha
   const [fecha, hora] = fechaReferencia.split(' ');
   const [d, m, y] = fecha.split('/');
   const [h, min] = hora.split(':');
@@ -429,10 +456,8 @@ const tiempoTranscurrido = computed(() => {
   const h_res = Math.floor(diffSegundos / 3600);
   const m_res = Math.floor((diffSegundos % 3600) / 60);
   const s_res = diffSegundos % 60;
-
   const totalMinutos = diffSegundos / 60;
   
-  // Lógica de colores
   let color = 'text-slate-600';
   if (totalMinutos > 70) color = 'text-red-600 animate-pulse font-bold';
   else if (totalMinutos >= 60) color = 'text-orange-500';
@@ -444,46 +469,38 @@ const tiempoTranscurrido = computed(() => {
     color: color
   };
 });
-// Lógica de colores según tus reglas
-const getClaseColor = computed(() => {
-  const min = tiempoCalculado.value.totalMinutos;
-  if (min > 70) return 'text-red-600 animate-pulse font-bold'; // > 1h 10m
-  if (min >= 60) return 'text-orange-500'; // 1 hora
-  if (min >= 30) return 'text-yellow-500'; // 30 min
-  if (min >= 20) return 'text-amber-500';  // 20 min
-  if (min >= 10) return 'text-green-500';  // 10 min
-  return 'text-slate-500'; // menos de 10 min
-});
-
-const rolUsuario = computed(() => {
-  // Ajusta según cómo guardes el usuario autenticado (ej: authStore.user.rol_id o usuarioAutenticado.value?.rol?.id)
-  return usuarioAutenticado.value?.rol?.id || usuarioAutenticado.value?.rol_id || 0;
-});
 
 const cargarTecnicos = async () => {
-  const { data } = await api.get('/tecnicos');
-  tecnicos.value = data;
+  try {
+    const { data } = await api.get('/tecnicos');
+    tecnicos.value = data;
+  } catch (error) {
+    console.error("Error al cargar técnicos:", error);
+  }
 };
-// Lógica de Asignación
+
 const asignarTecnico = async () => {
   try {
-      await api.put(`/tickets/${route.params.id}/asignar`, { 
+    await api.put(`/tickets/${route.params.id}/asignar`, { 
       tecnicoAsignadoId: ticket.value.tecnicoAsignadoId 
+    });
+    Toast.fire({
+      icon: 'success',
+      title: '¡Técnico asignado correctamente!'
     });
     cargarTicket();
     Swal.fire('Asignado', 'Técnico actualizado con éxito', 'success');
   } catch (error) {
     Swal.fire('Error', 'No se pudo asignar al técnico', 'error');
-    console.log('los datos guardados son:',error);
   }
 };
 
 const usuarioPuedeComentar = computed(() => {
-    if (!usuarioAutenticado.value || !usuarioAutenticado.value.rol) return false;
-    const rolesAutorizados = [1, 2]; 
-    const esRolValido = rolesAutorizados.includes(usuarioAutenticado.value.rol.id);
-    const esEstadoValido = ticket.value.estadoTicket !== 'Resuelto';
-    return esEstadoValido && esRolValido;
+  if (!usuarioAutenticado.value || !usuarioAutenticado.value.rol) return false;
+  const rolesAutorizados = [1, 2]; 
+  const esRolValido = rolesAutorizados.includes(usuarioAutenticado.value.rol.id);
+  const esEstadoValido = ticket.value.estadoTicket !== 'Resuelto';
+  return esEstadoValido && esRolValido;
 });
 
 const agregarNota = async () => {
@@ -499,8 +516,11 @@ const agregarNota = async () => {
   if (nota) {
     try {
       await api.post(`/tickets/${route.params.id}/bitacoras`, { mensaje: nota });
-      Swal.fire('¡Éxito!', 'Nota agregada correctamente', 'success');
-      cargarTicket(); // Función reutilizada para refrescar
+      Toast.fire({
+        icon: 'success',
+        title: 'Nota agregada correctamente'
+      });
+      cargarTicket();
     } catch (error) {
       Swal.fire('Error', 'No se pudo guardar la nota', 'error');
     }
@@ -508,63 +528,102 @@ const agregarNota = async () => {
 };
 
 const cambiarEstado = async () => {
-  // Si el usuario elige "Resuelto", forzamos el SweetAlert de nota
-  if (ticket.value.estadoTicket === 'Resuelto') {
+  const estadoSeleccionado = ticket.value.estadoTicket;
+  
+  if (estadoSeleccionado === 'Resuelto') {
     const { value: nota } = await Swal.fire({
       title: 'Validando resultado',
       text: 'Para resolver el ticket, describe brevemente la solución:',
       input: 'textarea',
       inputPlaceholder: 'Explica qué se hizo...',
       showCancelButton: true,
-      confirmButtonText: 'Confirmar si esta resuelto',
+      confirmButtonText: 'Confirmar si está resuelto',
       inputValidator: (value) => {
-        if (!value) return '¡Necesitas escribir la solución!'
+        if (!value) return '¡Necesitas escribir la solución!';
       }
     });
 
     if (!nota) {
-      // Si cancela, regresamos el select al estado anterior (puedes refrescar para recuperar)
-      cargarTicket();
+      await cargarTicket();
       return;
     }
     
-    // Si escribió la nota, guardamos estado Y nota
-    await ejecutarCambioEstado(ticket.value.estadoTicket, nota);
+    await ejecutarCambioEstado('Resuelto', nota);
   } else {
-    // Si es otro estado, cambio normal
-    await ejecutarCambioEstado(ticket.value.estadoTicket);
+    await ejecutarCambioEstado(estadoSeleccionado);
   }
 };
 
 const ejecutarCambioEstado = async (nuevoEstado, comentario = null) => {
   try {
-    await api.put(`/tickets/${route.params.id}/estado`, { 
+    const { data } = await api.put(`/tickets/${route.params.id}/estado`, { 
       estadoTicket: nuevoEstado,
-      comentario: comentario // Asegúrate de recibir esto en tu backend
+      comentario: comentario 
+    });
+
+    Toast.fire({
+      icon: 'success',
+      title: 'Estado actualizado con éxito'
     });
     Swal.fire('¡Éxito!', 'Estado actualizado', 'success');
-    cargarTicket();
+    
+    const infoTicketActualizada = data.data || data;
+    
+    ticket.value = {
+      ...ticket.value,
+      ...infoTicketActualizada,
+      estadoTicket: nuevoEstado
+    };
+
+    if (infoTicketActualizada.bitacoras) {
+      bitacora.value = infoTicketActualizada.bitacoras;
+    } else {
+      cargarTicket();
+    }
+
   } catch (error) {
     Swal.fire('Error', 'No se pudo actualizar', 'error');
+    cargarTicket();
   }
 };
 
 const cargarTicket = async () => {
+  const ticketId = route.params.id;
+  if (!ticketId || ticketId === 'undefined') return;
+
   try {
     const { data } = await api.get(`/tickets/${route.params.id}`);
-    ticket.value = data.data;
-    bitacora.value = data.data.bitacoras || []; 
+    const infoTicket = data.data || data;
+    
+    ticket.value = infoTicket;
+    
+    if (!ticket.value.estadoTicket && ticket.value.estado) {
+      ticket.value.estadoTicket = ticket.value.estado;
+    }
+
+    bitacora.value = infoTicket.bitacoras || []; 
   } catch (error) {
     console.error("Error al cargar ticket:", error);
   }
 };
 
-onMounted(()=>{
+onMounted(() => {
   cargarTicket(); 
   cargarTecnicos();
-  intervalo = setInterval(() => {
+
+  // Reloj en tiempo real para el contador
+  intervaloReloj = setInterval(() => {
     ahora.value = new Date();
   }, 1000);
-  
+
+  // Sincronización automática de este detalle de ticket cada 10 segundos
+  intervaloRefrescoTicket = setInterval(() => {
+    cargarTicket();
+  }, 10000);
+});
+
+onUnmounted(() => {
+  clearInterval(intervaloReloj);
+  clearInterval(intervaloRefrescoTicket);
 });
 </script>

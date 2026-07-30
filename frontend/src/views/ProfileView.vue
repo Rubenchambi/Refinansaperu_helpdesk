@@ -46,8 +46,8 @@
             <p class="text-sm text-slate-800">{{ authStore.user?.nombre || '-' }}</p>
           </div>
           <div>
-            <span class="text-xs font-medium text-slate-400 uppercase">Usuario</span>
-            <p class="text-sm text-slate-800">{{ authStore.user?.username || '-' }}</p>
+            <span class="text-xs font-medium text-slate-400 uppercase">Nro Documento</span>
+            <p class="text-sm text-slate-800">{{ authStore.user?.dni || '-' }}</p>
           </div>
           <div>
             <span class="text-xs font-medium text-slate-400 uppercase">Email</span>
@@ -70,6 +70,7 @@
 
       <!-- Tarjeta de estadísticas o información adicional -->
       <div class="lg:col-span-1 space-y-4">
+
         <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
           <h3 class="text-sm font-medium text-slate-400 uppercase tracking-wider mb-3">Estadísticas</h3>
           <div class="space-y-3">
@@ -112,14 +113,19 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import Swal from 'sweetalert2';
+import api from '@/services/api';
 
 const router = useRouter();
 const authStore = useAuthStore();
-
+const stats = ref({
+  ticketsCreados: 0,
+  ticketsAsignados: 0,
+  ticketsCerrados: 0
+});
 // Iniciales
 const userInitials = computed(() => {
   const name = authStore.user?.nombre || 'US';
@@ -147,17 +153,21 @@ const rolBadgeColor = computed(() => {
 // Fecha formateada
 const formattedDate = computed(() => {
   if (!authStore.user?.created_at) return null;
+  
   return new Date(authStore.user.created_at).toLocaleDateString('es-ES', {
     year: 'numeric', month: 'long', day: 'numeric'
   });
 });
 
-// Estadísticas (ejemplo estático, reemplazar con datos reales)
-const stats = computed(() => ({
-  ticketsCreados: 12,
-  ticketsAsignados: 5,
-  ticketsCerrados: 7
-}));
+// Estadísticas (ejemplo estático, reemplazar con datos reales
+const fetchEstadisticas = async () => {
+  try {
+    const res = await api.get('/perfil/estadisticas'); // Asegúrate que esta sea tu ruta exacta en api.php
+    stats.value = res.data;
+  } catch (error) {
+    console.error('Error al cargar las estadísticas:', error);
+  }
+};
 
 // Funciones
 const goBack = () => {
@@ -186,4 +196,8 @@ const logout = () => {
     }
   });
 };
+
+onMounted(() => {
+  fetchEstadisticas();
+});
 </script>

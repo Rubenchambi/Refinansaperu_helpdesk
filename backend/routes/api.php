@@ -26,7 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-
+    Route::get('/usuarios/perfil-actual', [UsuarioController::class, 'perfilActual']);
     Route::get('/tickets/descargar-archivo', [TicketController::class, 'descargarArchivo']);
     Route::get('/tickets-estadisticas', [TicketController::class, 'estadisticas']);
     Route::post('/tickets/{id}/bitacoras', [TicketController::class, 'storeBitacora']);
@@ -46,5 +46,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('carteras',CarteraController::class);
     //Route::apiResource('ticket',TicketController::class);
     Route::post('/tickets-con-archivos/actualizar/{id}', [TicketController::class, 'updateConArchivos']);
+    Route::middleware('auth:sanctum')->put('/cambiar-password', [AuthController::class, 'changePassword']);
+    Route::get('/perfil/estadisticas', [AuthController::class, 'estadisticas']);
+    
 
 });
