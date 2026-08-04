@@ -48,6 +48,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/tickets-con-archivos/actualizar/{id}', [TicketController::class, 'updateConArchivos']);
     Route::middleware('auth:sanctum')->put('/cambiar-password', [AuthController::class, 'changePassword']);
     Route::get('/perfil/estadisticas', [AuthController::class, 'estadisticas']);
-    
+    Route::middleware('auth:sanctum')->get('/tickets-resumen-alertas', [TicketController::class, 'resumenAlertas']);
 
 });

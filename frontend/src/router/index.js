@@ -92,6 +92,12 @@ const router = createRouter({
       meta: { requiresAuth: true }
     },
     {
+      path: '/inventario',
+      name: 'inventario',
+      component: () => import('@/views/InventarioView.vue'), // o '@/components/InventarioTI.vue'
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/administracion',
       name: 'administracion',
       component: ConfiguracionView,

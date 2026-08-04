@@ -378,7 +378,7 @@ const tickets = ref([]);
 const busqueda = ref('');
 const filtroEstado = ref('');
 const router = useRouter();
-let intervaloRefresco = null;
+
 
 // Variables para la paginación frontal
 const paginaActual = ref(1);
@@ -565,14 +565,8 @@ onMounted(() => {
 
     sessionStorage.setItem('saludoMostrado', 'true');
   }
-
-  intervaloRefresco = setInterval(() => {
-    cargarDatos();
-  }, 12000);
 });
 
 onUnmounted(() => {
-  // Limpieza vital del intervalo al salir del dashboard para cuidar recursos
-  clearInterval(intervaloRefresco);
 });
 </script>

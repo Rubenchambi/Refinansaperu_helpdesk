@@ -459,4 +459,24 @@ public function update(Request $request, $id)
             'finalizados' => $finalizados,
         ]);
     }
+
+    public function resumenAlertas()
+    {
+        try {
+            // Seleccionamos solo los campos clave para vigilar cambios sin sobrecargar la red
+            $tickets = \App\Models\Ticket::select('id', 'codigo_ticket', 'estadoTicket', 'tecnicoAsignadoId')
+                ->withCount('bitacoras') // Esto te trae la cantidad de notas de frente y súper rápido
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $tickets
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

@@ -64,9 +64,15 @@
             <span v-if="!sidebarCollapsed">Administración</span>
           </router-link>
           
-          <router-link v-if="puedeVerAdminTotal" to="/productos" class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" :class="sidebarCollapsed ? 'justify-center px-3' : ''">
+          <router-link 
+            v-if="puedeVerAdminTotal" 
+            to="/inventario" 
+            class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" 
+            :class="sidebarCollapsed ? 'justify-center px-3' : ''"
+            title="Inventario y Activos"
+          >
             <CubeIcon class="w-5 h-5 shrink-0" />
-            <span v-if="!sidebarCollapsed">Productos/Servicios</span>
+            <span v-if="!sidebarCollapsed">Inventario & Activos</span>
           </router-link>
           
           <router-link v-if="puedeVerAdminTotal" to="/seguridad" class="flex items-center gap-3 py-3 px-6 hover:bg-slate-800 transition-colors" :class="sidebarCollapsed ? 'justify-center px-3' : ''">
@@ -165,7 +171,8 @@ const verificarAlertasGlobales = async () => {
   if (!authStore.user) return;
 
   try {
-    const { data } = await api.get('/tickets?all=true');
+    // ⚡ CAMBIO CLAVE: Usamos el endpoint ligero en lugar de ?all=true
+    const { data } = await api.get('/tickets-resumen-alertas');
     const listaTickets = data.data || data;
 
     listaTickets.forEach(ticketActual => {
@@ -173,8 +180,8 @@ const verificarAlertasGlobales = async () => {
       const tecnicoAnterior = tecnicoAnteriorMap.value.get(ticketActual.id);
       const cantidadNotasAnterior = bitacorasCountMap.value.get(ticketActual.id);
       
-      // Contamos cuántas notas/bitácoras tiene actualmente el ticket (asumiendo que viene un array 'bitacoras')
-      const cantidadNotasActual = ticketActual.bitacoras ? ticketActual.bitacoras.length : 0;
+      // Como el backend nos manda 'bitacoras_count' gracias a withCount, lo leemos directamente de ahí
+      const cantidadNotasActual = ticketActual.bitacoras_count ?? 0;
 
       // Si es la primera vez que lo vemos, solo memorizamos todo sin alertar
       if (estadoAnterior === undefined) {
@@ -198,7 +205,7 @@ const verificarAlertasGlobales = async () => {
         Toast.fire({
           icon: 'info',
           title: `¡Nuevo ticket asignado! (Nro : ${ticketActual.codigo_ticket})`,
-          text: `Te han asignado el caso: "${ticketActual.asunto}"`
+          text: 'Te han asignado un nuevo caso en el sistema.'
         });
       }
 
@@ -207,7 +214,7 @@ const verificarAlertasGlobales = async () => {
         Toast.fire({
           icon: 'warning',
           title: `Nueva nota en ticket Nro : ${ticketActual.codigo_ticket}`,
-          text: 'El técnico ha dejado un mensaje para revisión.'
+          text: 'Se ha registrado un nuevo mensaje en la bitácora.'
         });
       }
 
@@ -221,6 +228,7 @@ const verificarAlertasGlobales = async () => {
     console.error("❌ Error en notificaciones globales:", error);
   }
 };
+
 onMounted(() => {
   verificarAlertasGlobales();
   // Consulta global cada 12 segundos

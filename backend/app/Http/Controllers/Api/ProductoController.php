@@ -8,11 +8,25 @@ use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
-    // 1. Listar todos
-    public function index()
+    // 1. Listar con paginación y búsqueda
+    public function index(Request $request)
     {
-        // Solo traemos los productos con estado true
-        $productos = Producto::where('estado', true)->get();
+        $query = Producto::where('estado', true)->withCount('activos');
+
+        // Filtro de búsqueda general (por nombre, marca o categoría)
+        if ($request->has('buscar') && !empty($request->buscar)) {
+            $busqueda = $request->buscar;
+            $query->where(function($q) use ($busqueda) {
+                $q->where('nombre', 'ilike', "%{$busqueda}%")
+                  ->orWhere('marca', 'ilike', "%{$busqueda}%")
+                  ->orWhere('categoria', 'ilike', "%{$busqueda}%");
+            });
+        }
+
+        // Paginación (por defecto 10 o lo que mande el frontend)
+        $perPage = $request->get('per_page', 10);
+        $productos = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
         return ProductoResource::collection($productos);
     }
 
@@ -22,6 +36,9 @@ class ProductoController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'marca' => 'required|string|max:255',
+            'categoria' => 'nullable|string|max:100',
+            'stockMinimo' => 'nullable|integer|min:0',
+            'descripcion' => 'nullable|string',
         ]);
 
         $producto = Producto::create($request->all());
@@ -31,7 +48,7 @@ class ProductoController extends Controller
     // 3. Ver uno solo
     public function show($id)
     {
-        $producto = Producto::findOrFail($id);
+        $producto = Producto::with('activos')->findOrFail($id);
         return new ProductoResource($producto);
     }
 
@@ -43,6 +60,9 @@ class ProductoController extends Controller
         $request->validate([
             'nombre' => 'sometimes|required|string|max:255',
             'marca' => 'sometimes|required|string|max:255',
+            'categoria' => 'nullable|string|max:100',
+            'stockMinimo' => 'nullable|integer|min:0',
+            'descripcion' => 'nullable|string',
         ]);
 
         $producto->update($request->all());
@@ -57,6 +77,9 @@ class ProductoController extends Controller
         // Cambiamos el estado a false en lugar de borrar el registro
         $producto->update(['estado' => false]);
 
-        return response()->json(['message' => 'Producto dado de baja correctamente'], 200);
+        return response()->json([
+            'success' => true,
+            'message' => 'Producto dado de baja correctamente'
+        ], 200);
     }
 }
