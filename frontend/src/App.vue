@@ -9,8 +9,15 @@
       v-if="$route.path !== '/login'"
     >
       <!-- Header del Sidebar con botón de colapsar -->
-      <div class="flex items-center justify-between p-4 border-b border-slate-800" :class="sidebarCollapsed ? 'px-3' : 'px-6'">
-        <span v-if="!sidebarCollapsed" class="text-xl font-bold">SISTICKET</span>
+<div class="flex items-center justify-between p-4 border-b border-slate-800" :class="sidebarCollapsed ? 'px-3' : 'px-6'">
+        
+        <!-- Contenedor del Logo y Texto -->
+        <div class="flex items-center gap-3">
+          <img src="@/assets/rp.ico" alt="Logo Refinansa Perú" class="w-8 h-auto object-contain" />
+          <span v-if="!sidebarCollapsed" class="text-xl font-bold text-white">SISTICKET</span>
+        </div>
+
+        <!-- Botón de colapsar -->
         <button 
           @click="toggleSidebar"
           class="p-1 rounded hover:bg-slate-800 transition-colors"

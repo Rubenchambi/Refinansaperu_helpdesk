@@ -57,11 +57,18 @@ const handleLogin = async () => {
 
 <template>
   <div class="min-h-screen flex items-center justify-center bg-slate-50 font-sans">
-    <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-md border border-slate-100">
-      <div class="text-center mb-8">
-        <h2 class="text-3xl font-extrabold text-slate-800">Bienvenido</h2>
-        <p class="text-slate-500 mt-2">Accede al panel de Refinansaperú</p>
-      </div>
+    <div class="bg-white p-10 rounded-2xl shadow-xl w-full max-w-lg border border-slate-100">
+          <div class="text-center mb-8">
+              <img src="../assets/rp.ico" alt="Logo Refinansa Perú" class="mx-auto w-24 h-auto mb-4" />
+              
+              <h4 class="text-2xl font-semibold text-slate-800 tracking-normal">
+                  Mesa de Ayuda <span class="text-slate-300 font-light mx-1">|</span> Refinansa Perú
+              </h4>
+              
+              <p class="text-sm text-slate-500 mt-2">
+                  Accede al panel de Refinansa Perú
+              </p>
+          </div>
 
       <form @submit.prevent="handleLogin" class="space-y-6">
         <div>
@@ -90,7 +97,7 @@ const handleLogin = async () => {
         <button 
           :disabled="loading"
           type="submit" 
-          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
+          class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
         >
           {{ loading ? 'Validando...' : 'Iniciar Sesión' }}
         </button>
